@@ -1,5 +1,4 @@
 import 'package:flutter/painting.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import 'app_colors.dart';
 
@@ -15,7 +14,8 @@ class AppTextStyles {
     double? letterSpacing,
     List<FontFeature>? fontFeatures,
   }) {
-    return GoogleFonts.manrope(
+    return TextStyle(
+      fontFamily: 'Manrope',
       fontSize: size,
       fontWeight: weight,
       color: color,
