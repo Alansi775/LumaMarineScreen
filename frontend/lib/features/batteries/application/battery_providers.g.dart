@@ -41,6 +41,23 @@ final mainBatteryProvider = AutoDisposeStreamProvider<BatteryModel>.internal(
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef MainBatteryRef = AutoDisposeStreamProviderRef<BatteryModel>;
+String _$backupBatteryHash() => r'a9e249893e1d5069a45517fc463d05f8f6b316e6';
+
+/// See also [backupBattery].
+@ProviderFor(backupBattery)
+final backupBatteryProvider = AutoDisposeStreamProvider<BatteryModel>.internal(
+  backupBattery,
+  name: r'backupBatteryProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$backupBatteryHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef BackupBatteryRef = AutoDisposeStreamProviderRef<BatteryModel>;
 String _$batteryCircuitsHash() => r'b6968f52ef0d9c51d2dc07d3bc2ae1ff6ecb177d';
 
 /// See also [batteryCircuits].

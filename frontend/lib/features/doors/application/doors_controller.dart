@@ -8,8 +8,9 @@ import '../domain/door_model.dart';
 
 part 'doors_controller.g.dart';
 
-/// Relay channel each door's release solenoid is wired to (channel 1 is
-/// the TV socket — see TvController). RELAY_CMD_SET, usrSocketsPage.c.
+/// Relay channel each door's release solenoid is wired to, on the extra
+/// relay node (channel 1 there is the TV socket — see TvController).
+/// RELAY_CMD_SET, usrSocketsPage.c.
 const _doorRelayChannels = {'main': 2, 'aft': 3};
 
 /// Two monitored doors. [trigger] opens a door and automatically closes it
@@ -41,7 +42,7 @@ class DoorsController extends _$DoorsController {
 
     final channel = _doorRelayChannels[id];
     if (channel != null) {
-      ref.read(canBusServiceProvider).setRelay(channel: channel, isOn: true);
+      ref.read(canBusServiceProvider).setExtraRelay(channel: channel, isOn: true);
     }
 
     _closeTimers[id] = Timer(const Duration(seconds: 1), () {
@@ -50,7 +51,7 @@ class DoorsController extends _$DoorsController {
           if (door.id == id) door.copyWith(isOpen: false) else door,
       ];
       if (channel != null) {
-        ref.read(canBusServiceProvider).setRelay(channel: channel, isOn: false);
+        ref.read(canBusServiceProvider).setExtraRelay(channel: channel, isOn: false);
       }
     });
   }

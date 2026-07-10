@@ -6,7 +6,7 @@ part of 'tanks_controller.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$tanksControllerHash() => r'577e0c410e559b76fb9b8a2b99fab31f4438b9bf';
+String _$tanksControllerHash() => r'a2c6f68c390effdab24317439313e119a40f8138';
 
 /// Live tank telemetry + the one write action a captain actually needs:
 /// pumping the waste tank out. Fresh water drips down and waste creeps up

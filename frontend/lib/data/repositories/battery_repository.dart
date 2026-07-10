@@ -6,5 +6,6 @@ import '../../features/batteries/domain/circuit_model.dart';
 /// override is needed.
 abstract class BatteryRepository {
   Stream<BatteryModel> watchMainBattery();
+  Stream<BatteryModel> watchBackupBattery();
   Stream<List<CircuitModel>> watchCircuits();
 }

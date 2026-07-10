@@ -18,6 +18,11 @@ Stream<BatteryModel> mainBattery(MainBatteryRef ref) {
 }
 
 @riverpod
+Stream<BatteryModel> backupBattery(BackupBatteryRef ref) {
+  return ref.watch(batteryRepositoryProvider).watchBackupBattery();
+}
+
+@riverpod
 Stream<List<CircuitModel>> batteryCircuits(BatteryCircuitsRef ref) {
   return ref.watch(batteryRepositoryProvider).watchCircuits();
 }

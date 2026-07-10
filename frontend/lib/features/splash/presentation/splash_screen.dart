@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
-import '../../../navigation/root_shell.dart';
+import '../../../navigation/app_gate.dart';
 
 /// Full-screen boot sequence: logo emerges from a soft radial glow, then
 /// a thin scanning accent line sweeps once before the app hands off to
-/// [RootShell]. Everything here is intentionally quiet — one motion idea,
+/// [AppGate]. Everything here is intentionally quiet — one motion idea,
 /// executed precisely, rather than several competing for attention.
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -77,7 +77,7 @@ class _SplashScreenState extends State<SplashScreen>
               transitionDuration: const Duration(milliseconds: 500),
               pageBuilder: (_, anim, _) => FadeTransition(
                 opacity: anim,
-                child: const RootShell(),
+                child: const AppGate(),
               ),
             ),
           );

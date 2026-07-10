@@ -5,8 +5,10 @@ import '../../../core/theme/app_dimensions.dart';
 import '../../../core/widgets/luma_card.dart';
 import '../../../core/widgets/section_label.dart';
 import '../application/battery_providers.dart';
+import 'widgets/backup_battery_card.dart';
 import 'widgets/circuit_row.dart';
 import 'widgets/main_battery_summary.dart';
+import 'widgets/shunt_relay_row.dart';
 
 class BatteriesScreen extends ConsumerWidget {
   const BatteriesScreen({super.key});
@@ -26,7 +28,18 @@ class BatteriesScreen extends ConsumerWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const Expanded(flex: 4, child: MainBatterySummary()),
+            Expanded(
+              flex: 4,
+              child: Column(
+                children: [
+                  const Expanded(child: MainBatterySummary()),
+                  const SizedBox(height: AppDimensions.gutter),
+                  const BackupBatteryCard(),
+                  const SizedBox(height: AppDimensions.gutter),
+                  const ShuntRelayRow(),
+                ],
+              ),
+            ),
             const SizedBox(width: AppDimensions.gutter),
             Expanded(
               flex: 6,

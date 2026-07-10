@@ -16,8 +16,8 @@ CanBusService canBusService(CanBusServiceRef ref) {
   return CanBusService(ref.watch(canBusTransportProvider));
 }
 
-/// Builds and sends the exact frames the ESP32 LED/Relay nodes expect.
-/// One method per real-world action — callers don't touch byte layout.
+/// Builds and sends the exact frames each ESP32 node type expects. One
+/// method per real-world action — callers don't touch byte layout.
 class CanBusService {
   CanBusService(this._transport);
 
@@ -44,11 +44,85 @@ class CanBusService {
     ));
   }
 
-  /// RELAY_CMD_SET (0x21): [cmd, channel(1-based), state]
-  Future<void> setRelay({required int channel, required bool isOn}) {
+  /// RELAY_CMD_SET (0x21) to the Sockets Control node (matches their
+  /// 6-channel Sockets page 1:1).
+  Future<void> setSocketRelay({required int channel, required bool isOn}) {
     return _transport.send(CanFrame(
-      id: CanProtocol.relayNodeId,
+      id: CanProtocol.socketsRelayNodeId,
       data: [CanProtocol.relayCmdSet, channel, isOn ? 1 : 0],
     ));
+  }
+
+  /// RELAY_CMD_SET (0x21) to our own extra relay outputs (TV, Doors) —
+  /// not part of their 6-channel Sockets spec, kept on a separate node id
+  /// so channel numbers don't collide with it.
+  Future<void> setExtraRelay({required int channel, required bool isOn}) {
+    return _transport.send(CanFrame(
+      id: CanProtocol.extraRelayNodeId,
+      data: [CanProtocol.relayCmdSet, channel, isOn ? 1 : 0],
+    ));
+  }
+
+  /// BIG_RELAY_CMD_SET_OUTPUT (0x30): [cmd, channel(1-based), state]
+  Future<void> setBigRelayOutput({required int channel, required bool isOn}) {
+    return _transport.send(CanFrame(
+      id: CanProtocol.bigRelayNodeId,
+      data: [CanProtocol.bigRelayCmdSetOutput, channel, isOn ? 1 : 0],
+    ));
+  }
+
+  /// BIG_RELAY_CMD_SET_ALL (0x32): [cmd, state]
+  Future<void> setAllBigRelayOutputs({required bool isOn}) {
+    return _transport.send(CanFrame(
+      id: CanProtocol.bigRelayNodeId,
+      data: [CanProtocol.bigRelayCmdSetAll, isOn ? 1 : 0],
+    ));
+  }
+
+  /// BIG_RELAY_CMD_SET_AUTO_PAIR (0x34): [cmd, enabled]
+  Future<void> setBigRelayAutoPair({required bool enabled}) {
+    return _transport.send(CanFrame(
+      id: CanProtocol.bigRelayNodeId,
+      data: [CanProtocol.bigRelayCmdSetAutoPair, enabled ? 1 : 0],
+    ));
+  }
+
+  /// BIG_SHUNT_CMD_SET_RELAY (0x43): [cmd, relay(1-2), state]
+  Future<void> setShuntRelay({required int relay, required bool isOn}) {
+    return _transport.send(CanFrame(
+      id: CanProtocol.bigShuntNodeId,
+      data: [CanProtocol.bigShuntCmdSetRelay, relay, isOn ? 1 : 0],
+    ));
+  }
+
+  /// Toilet button state — legacy protocol: a 32-bit big-endian value in
+  /// an 8-byte frame sent straight to a fixed per-channel ID (sendCanHeader
+  /// in usrToiletPage.c), not the [cmd, channel, ...] shape newer nodes use.
+  Future<void> setToiletButton({required int channel, required bool isOn}) {
+    return _transport.send(_header(
+      id: CanProtocol.toiletButtonBaseId + channel,
+      value: isOn ? 1 : 0,
+    ));
+  }
+
+  /// Toilet PWM slider value (0-1000), same legacy header shape.
+  Future<void> setToiletSlider({required int channel, required int value}) {
+    return _transport.send(_header(
+      id: CanProtocol.toiletSliderBaseId + channel,
+      value: value,
+    ));
+  }
+
+  CanFrame _header({required int id, required int value}) {
+    return CanFrame(id: id, data: [
+      (value >> 24) & 0xFF,
+      (value >> 16) & 0xFF,
+      (value >> 8) & 0xFF,
+      value & 0xFF,
+      0,
+      0,
+      0,
+      0,
+    ]);
   }
 }

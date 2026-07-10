@@ -31,6 +31,22 @@ class MockBatteryRepository implements BatteryRepository {
   }
 
   @override
+  Stream<BatteryModel> watchBackupBattery() async* {
+    var percentage = 0.96;
+    while (true) {
+      percentage = (percentage + (_random.nextDouble() - 0.5) * 0.004).clamp(0.85, 1.0);
+      yield BatteryModel(
+        percentage: percentage,
+        voltage: 12.6 + percentage * 1.1,
+        amps: 0.1,
+        timeRemaining: const Duration(hours: 48),
+        isCharging: true,
+      );
+      await Future.delayed(const Duration(seconds: 5));
+    }
+  }
+
+  @override
   Stream<List<CircuitModel>> watchCircuits() async* {
     while (true) {
       yield [

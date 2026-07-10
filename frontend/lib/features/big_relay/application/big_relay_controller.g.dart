@@ -1,29 +1,29 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'tv_controller.dart';
+part of 'big_relay_controller.dart';
 
 // **************************************************************************
 // RiverpodGenerator
 // **************************************************************************
 
-String _$tvControllerHash() => r'7a2f48594e9eddba42e069044d553decd0081bb0';
+String _$bigRelayControllerHash() =>
+    r'bb659c7bab829d7604b5be64cc2d52775e0fa35a';
 
-/// Single on/off toggle for the saloon TV — wired to the extra relay node
-/// (RELAY_CMD_SET, see usrSocketsPage.c), channel 1.
+/// 16-channel relay bank with real I/O feedback (usrBigRelayPage.h/.c).
 ///
-/// Copied from [TvController].
-@ProviderFor(TvController)
-final tvControllerProvider =
-    AutoDisposeNotifierProvider<TvController, bool>.internal(
-      TvController.new,
-      name: r'tvControllerProvider',
+/// Copied from [BigRelayController].
+@ProviderFor(BigRelayController)
+final bigRelayControllerProvider =
+    AutoDisposeNotifierProvider<BigRelayController, BigRelayState>.internal(
+      BigRelayController.new,
+      name: r'bigRelayControllerProvider',
       debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
           ? null
-          : _$tvControllerHash,
+          : _$bigRelayControllerHash,
       dependencies: null,
       allTransitiveDependencies: null,
     );
 
-typedef _$TvController = AutoDisposeNotifier<bool>;
+typedef _$BigRelayController = AutoDisposeNotifier<BigRelayState>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

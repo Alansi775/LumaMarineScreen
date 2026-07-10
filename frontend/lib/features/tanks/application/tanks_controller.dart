@@ -64,4 +64,16 @@ class TanksController extends _$TanksController {
         if (tank.id == id) tank.copyWith(level: 0) else tank,
     ];
   }
+
+  /// Updates capacity + sensor type — mirrors the ESP32 tank config popup
+  /// (usrTankLevelPage_saveTankConfig).
+  void configure(String id, {required double capacityLiters, required TankSensorType sensorType}) {
+    state = [
+      for (final tank in state)
+        if (tank.id == id)
+          tank.copyWith(capacityLiters: capacityLiters, sensorType: sensorType)
+        else
+          tank,
+    ];
+  }
 }
