@@ -6,7 +6,7 @@ part of 'doors_controller.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$doorsControllerHash() => r'61210f2cbc6062fa671c8ad58a5d311352f37e17';
+String _$doorsControllerHash() => r'dc3def9b551d1360b7055c7ddf983321c71ce581';
 
 /// Two monitored doors. [trigger] opens a door and automatically closes it
 /// again one second later — a real release pulse, not a sticky toggle.

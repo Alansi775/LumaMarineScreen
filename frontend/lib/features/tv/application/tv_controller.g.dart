@@ -6,9 +6,10 @@ part of 'tv_controller.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$tvControllerHash() => r'9f6c752db47961c23d2feefdb0725de02ffe5bf4';
+String _$tvControllerHash() => r'bcee28a4c7bef3ecca720ef55b5b3dc2e255fc1b';
 
-/// Single on/off toggle for the saloon TV.
+/// Single on/off toggle for the saloon TV — wired to relay channel 1
+/// (RELAY_CMD_SET, see usrSocketsPage.c).
 ///
 /// Copied from [TvController].
 @ProviderFor(TvController)

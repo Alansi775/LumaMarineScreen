@@ -3,9 +3,14 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../../../core/canbus/can_bus_service.dart';
 import '../domain/door_model.dart';
 
 part 'doors_controller.g.dart';
+
+/// Relay channel each door's release solenoid is wired to (channel 1 is
+/// the TV socket — see TvController). RELAY_CMD_SET, usrSocketsPage.c.
+const _doorRelayChannels = {'main': 2, 'aft': 3};
 
 /// Two monitored doors. [trigger] opens a door and automatically closes it
 /// again one second later — a real release pulse, not a sticky toggle.
@@ -34,11 +39,19 @@ class DoorsController extends _$DoorsController {
         if (door.id == id) door.copyWith(isOpen: true) else door,
     ];
 
+    final channel = _doorRelayChannels[id];
+    if (channel != null) {
+      ref.read(canBusServiceProvider).setRelay(channel: channel, isOn: true);
+    }
+
     _closeTimers[id] = Timer(const Duration(seconds: 1), () {
       state = [
         for (final door in state)
           if (door.id == id) door.copyWith(isOpen: false) else door,
       ];
+      if (channel != null) {
+        ref.read(canBusServiceProvider).setRelay(channel: channel, isOn: false);
+      }
     });
   }
 }

@@ -29,7 +29,7 @@ class AppTextStyles {
 
   /// Huge hero readings (main battery %, clock).
   static TextStyle displayNumeral = _base(
-    size: 64,
+    size: 78,
     weight: FontWeight.w800,
     fontFeatures: _tabular,
     letterSpacing: -1.5,
@@ -37,7 +37,7 @@ class AppTextStyles {
 
   /// Large readings inside cards (tank %, temp value).
   static TextStyle cardNumeral = _base(
-    size: 34,
+    size: 42,
     weight: FontWeight.w700,
     fontFeatures: _tabular,
     letterSpacing: -0.5,
@@ -45,38 +45,38 @@ class AppTextStyles {
 
   /// Mid readings (amp values, list rows).
   static TextStyle numeralMedium = _base(
-    size: 20,
+    size: 24,
     weight: FontWeight.w600,
     fontFeatures: _tabular,
   );
 
-  static TextStyle title = _base(size: 22, weight: FontWeight.w700);
+  static TextStyle title = _base(size: 27, weight: FontWeight.w700);
 
   static TextStyle body = _base(
-    size: 15,
+    size: 18,
     weight: FontWeight.w500,
     color: AppColors.textSecondary,
   );
 
-  static TextStyle bodyStrong = _base(size: 15, weight: FontWeight.w700);
+  static TextStyle bodyStrong = _base(size: 18, weight: FontWeight.w700);
 
   /// Small caps section header, e.g. "BATTERIES".
   static TextStyle sectionLabel = _base(
-    size: 12.5,
+    size: 15,
     weight: FontWeight.w700,
     color: AppColors.textSecondary,
     letterSpacing: 2.2,
   );
 
   static TextStyle caption = _base(
-    size: 12,
+    size: 14.5,
     weight: FontWeight.w500,
     color: AppColors.textTertiary,
     letterSpacing: 0.2,
   );
 
   static TextStyle unit = _base(
-    size: 14,
+    size: 17,
     weight: FontWeight.w600,
     color: AppColors.textTertiary,
   );

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../../../core/canbus/can_bus_service.dart';
 import '../domain/light_model.dart';
 
 part 'lights_controller.g.dart';
@@ -22,11 +23,21 @@ class LightsController extends _$LightsController {
     ];
   }
 
+  /// Channel = 1-based position in the list — mirrors the ESP32 LED card's
+  /// fixed 6-channel layout (LED_CMD_SET, see usrLightingPage.c).
   void toggle(String id) {
+    final index = state.indexWhere((light) => light.id == id);
+    if (index == -1) return;
+
+    final newIsOn = !state[index].isOn;
     state = [
       for (final light in state)
-        if (light.id == id) light.copyWith(isOn: !light.isOn) else light,
+        if (light.id == id) light.copyWith(isOn: newIsOn) else light,
     ];
+
+    if (index < 6) {
+      ref.read(canBusServiceProvider).setLed(channel: index + 1, isOn: newIsOn);
+    }
   }
 
   void addLight({required String name, required IconData icon}) {
