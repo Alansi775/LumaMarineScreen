@@ -45,8 +45,7 @@ class LightsController extends _$LightsController {
     final index = state.indexWhere((light) => light.id == id);
     if (index == -1) return;
 
-    final previousIsOn = state[index].isOn;
-    final newIsOn = !previousIsOn;
+    final newIsOn = !state[index].isOn;
     state = [
       for (final light in state)
         if (light.id == id) light.copyWith(isOn: newIsOn) else light,
@@ -56,12 +55,16 @@ class LightsController extends _$LightsController {
       ref.read(canBusServiceProvider).setLed(channel: index + 1, isOn: newIsOn);
     }
 
+    // Always settles back to OFF, never "whatever it was before this
+    // press" — with no hardware confirming anything, off is the only
+    // honest resting state. Reverting to a per-press "previous" value
+    // caused a rapid-double-tap race where it could snap back ON.
     _revertTimers[id]?.cancel();
-    if (!NodeConnection.ledNodeConnected) {
+    if (!NodeConnection.ledNodeConnected && newIsOn) {
       _revertTimers[id] = Timer(NodeConnection.revertDelay, () {
         state = [
           for (final light in state)
-            if (light.id == id) light.copyWith(isOn: previousIsOn) else light,
+            if (light.id == id) light.copyWith(isOn: false) else light,
         ];
       });
     }

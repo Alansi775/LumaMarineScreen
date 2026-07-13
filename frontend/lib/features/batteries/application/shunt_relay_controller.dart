@@ -25,15 +25,16 @@ class ShuntRelayController extends _$ShuntRelayController {
   }
 
   void toggle(int index) {
-    final previousOn = state[index];
-    final newOn = !previousOn;
+    final newOn = !state[index];
     state = [for (var i = 0; i < state.length; i++) i == index ? newOn : state[i]];
     ref.read(canBusServiceProvider).setShuntRelay(relay: index + 1, isOn: newOn);
 
+    // Always settles back to OFF — see LightsController.toggle for why
+    // reverting to a per-press "previous" value is wrong.
     _revertTimers[index]?.cancel();
-    if (!NodeConnection.bigShuntNodeConnected) {
+    if (!NodeConnection.bigShuntNodeConnected && newOn) {
       _revertTimers[index] = Timer(NodeConnection.revertDelay, () {
-        state = [for (var i = 0; i < state.length; i++) i == index ? previousOn : state[i]];
+        state = [for (var i = 0; i < state.length; i++) i == index ? false : state[i]];
       });
     }
   }

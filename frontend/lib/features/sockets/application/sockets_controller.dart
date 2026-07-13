@@ -39,8 +39,7 @@ class SocketsController extends _$SocketsController {
     final index = state.indexWhere((s) => s.id == id);
     if (index == -1) return;
 
-    final previousIsOn = state[index].isOn;
-    final newIsOn = !previousIsOn;
+    final newIsOn = !state[index].isOn;
     state = [
       for (final socket in state)
         if (socket.id == id) socket.copyWith(isOn: newIsOn) else socket,
@@ -48,12 +47,14 @@ class SocketsController extends _$SocketsController {
 
     ref.read(canBusServiceProvider).setSocketRelay(channel: index + 1, isOn: newIsOn);
 
+    // Always settles back to OFF — see LightsController.toggle for why
+    // reverting to a per-press "previous" value is wrong.
     _revertTimers[id]?.cancel();
-    if (!NodeConnection.socketsRelayNodeConnected) {
+    if (!NodeConnection.socketsRelayNodeConnected && newIsOn) {
       _revertTimers[id] = Timer(NodeConnection.revertDelay, () {
         state = [
           for (final socket in state)
-            if (socket.id == id) socket.copyWith(isOn: previousIsOn) else socket,
+            if (socket.id == id) socket.copyWith(isOn: false) else socket,
         ];
       });
     }

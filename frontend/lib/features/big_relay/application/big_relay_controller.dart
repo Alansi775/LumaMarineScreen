@@ -34,20 +34,21 @@ class BigRelayController extends _$BigRelayController {
   }
 
   void toggleOutput(int index) {
-    final previousOn = state.channels[index].outputOn;
-    final newOn = !previousOn;
+    final newOn = !state.channels[index].outputOn;
     state = state.copyWith(channels: [
       for (final c in state.channels)
         if (c.index == index) c.copyWith(outputOn: newOn) else c,
     ]);
     ref.read(canBusServiceProvider).setBigRelayOutput(channel: index + 1, isOn: newOn);
 
+    // Always settles back to OFF — see LightsController.toggle for why
+    // reverting to a per-press "previous" value is wrong.
     _outputRevertTimers[index]?.cancel();
-    if (!NodeConnection.bigRelayNodeConnected) {
+    if (!NodeConnection.bigRelayNodeConnected && newOn) {
       _outputRevertTimers[index] = Timer(NodeConnection.revertDelay, () {
         state = state.copyWith(channels: [
           for (final c in state.channels)
-            if (c.index == index) c.copyWith(outputOn: previousOn) else c,
+            if (c.index == index) c.copyWith(outputOn: false) else c,
         ]);
       });
     }
@@ -64,14 +65,13 @@ class BigRelayController extends _$BigRelayController {
   }
 
   void setAutoPair(bool enabled) {
-    final previous = state.autoPairEnabled;
     state = state.copyWith(autoPairEnabled: enabled);
     ref.read(canBusServiceProvider).setBigRelayAutoPair(enabled: enabled);
 
     _autoPairRevertTimer?.cancel();
-    if (!NodeConnection.bigRelayNodeConnected) {
+    if (!NodeConnection.bigRelayNodeConnected && enabled) {
       _autoPairRevertTimer = Timer(NodeConnection.revertDelay, () {
-        state = state.copyWith(autoPairEnabled: previous);
+        state = state.copyWith(autoPairEnabled: false);
       });
     }
   }
