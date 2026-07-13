@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../core/canbus/can_bus_service.dart';
@@ -12,8 +14,15 @@ part 'sockets_controller.g.dart';
 /// usrSettingsPage.c) before a user renames them via Settings.
 @riverpod
 class SocketsController extends _$SocketsController {
+  final Map<String, Timer> _revertTimers = {};
+
   @override
   List<SocketModel> build() {
+    ref.onDispose(() {
+      for (final timer in _revertTimers.values) {
+        timer.cancel();
+      }
+    });
     return const [
       SocketModel(id: 's1', name: 'PWM-1', isOn: false),
       SocketModel(id: 's2', name: 'PWM-2', isOn: false),
@@ -24,33 +33,37 @@ class SocketsController extends _$SocketsController {
     ];
   }
 
-  /// Rejected outright when no relay node is connected, matching their
-  /// firmware's "Relay kartı bağlı değil" early-return.
+  /// Responds immediately, but snaps back after [NodeConnection.revertDelay]
+  /// since no relay node is connected to confirm the change.
   void toggle(String id) {
-    if (!NodeConnection.socketsRelayNodeConnected) {
-      // ignore: avoid_print
-      print('[CANBUS] REJECTED — Relay kartı bağlı değil (Sockets relay node not connected)');
-      return;
-    }
-
     final index = state.indexWhere((s) => s.id == id);
     if (index == -1) return;
 
-    final newIsOn = !state[index].isOn;
+    final previousIsOn = state[index].isOn;
+    final newIsOn = !previousIsOn;
     state = [
       for (final socket in state)
         if (socket.id == id) socket.copyWith(isOn: newIsOn) else socket,
     ];
 
     ref.read(canBusServiceProvider).setSocketRelay(channel: index + 1, isOn: newIsOn);
+
+    _revertTimers[id]?.cancel();
+    if (!NodeConnection.socketsRelayNodeConnected) {
+      _revertTimers[id] = Timer(NodeConnection.revertDelay, () {
+        state = [
+          for (final socket in state)
+            if (socket.id == id) socket.copyWith(isOn: previousIsOn) else socket,
+        ];
+      });
+    }
   }
 
   void allOff() {
-    if (!NodeConnection.socketsRelayNodeConnected) {
-      // ignore: avoid_print
-      print('[CANBUS] REJECTED — Relay kartı bağlı değil (Sockets relay node not connected)');
-      return;
+    for (final timer in _revertTimers.values) {
+      timer.cancel();
     }
+    _revertTimers.clear();
 
     state = [for (final s in state) s.copyWith(isOn: false)];
     for (var i = 0; i < state.length; i++) {

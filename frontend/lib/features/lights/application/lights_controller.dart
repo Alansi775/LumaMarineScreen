@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -15,8 +17,15 @@ part 'lights_controller.g.dart';
 /// usrSettingsPage.c) before a user renames them via Settings.
 @riverpod
 class LightsController extends _$LightsController {
+  final Map<String, Timer> _revertTimers = {};
+
   @override
   List<Light> build() {
+    ref.onDispose(() {
+      for (final timer in _revertTimers.values) {
+        timer.cancel();
+      }
+    });
     return const [
       Light(id: 'ch1', name: 'PWM-1', icon: Icons.lightbulb_outline, isOn: true),
       Light(id: 'ch2', name: 'PWM-2', icon: Icons.lightbulb_outline, isOn: false),
@@ -28,21 +37,16 @@ class LightsController extends _$LightsController {
   }
 
   /// Channel = 1-based position in the list — mirrors the ESP32 LED card's
-  /// fixed 6-channel layout (LED_CMD_SET, see usrLightingPage.c). Rejected
-  /// outright when no LED node is connected, exactly like their firmware
-  /// (`if (led_node_id == 0) { ...; return; }`) — no state change, no CAN
-  /// frame, just the same "LED kartı bağlı değil" rejection.
+  /// fixed 6-channel layout (LED_CMD_SET, see usrLightingPage.c). Responds
+  /// immediately (so pressing feels normal), but since no LED node is
+  /// connected yet, the state snaps back after [NodeConnection.revertDelay]
+  /// — nothing out there actually confirmed the change.
   void toggle(String id) {
-    if (!NodeConnection.ledNodeConnected) {
-      // ignore: avoid_print
-      print('[CANBUS] REJECTED — LED kartı bağlı değil (LED node not connected)');
-      return;
-    }
-
     final index = state.indexWhere((light) => light.id == id);
     if (index == -1) return;
 
-    final newIsOn = !state[index].isOn;
+    final previousIsOn = state[index].isOn;
+    final newIsOn = !previousIsOn;
     state = [
       for (final light in state)
         if (light.id == id) light.copyWith(isOn: newIsOn) else light,
@@ -50,6 +54,16 @@ class LightsController extends _$LightsController {
 
     if (index < 6) {
       ref.read(canBusServiceProvider).setLed(channel: index + 1, isOn: newIsOn);
+    }
+
+    _revertTimers[id]?.cancel();
+    if (!NodeConnection.ledNodeConnected) {
+      _revertTimers[id] = Timer(NodeConnection.revertDelay, () {
+        state = [
+          for (final light in state)
+            if (light.id == id) light.copyWith(isOn: previousIsOn) else light,
+        ];
+      });
     }
   }
 
@@ -60,11 +74,10 @@ class LightsController extends _$LightsController {
 
   /// Matches the real ESP32 Lighting page's "Close All" button.
   void closeAll() {
-    if (!NodeConnection.ledNodeConnected) {
-      // ignore: avoid_print
-      print('[CANBUS] REJECTED — LED kartı bağlı değil (LED node not connected)');
-      return;
+    for (final timer in _revertTimers.values) {
+      timer.cancel();
     }
+    _revertTimers.clear();
 
     state = [for (final light in state) light.copyWith(isOn: false)];
     for (var i = 0; i < state.length && i < 6; i++) {

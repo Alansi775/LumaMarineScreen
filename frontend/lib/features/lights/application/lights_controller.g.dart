@@ -6,7 +6,7 @@ part of 'lights_controller.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$lightsControllerHash() => r'c770cc9f75bb6f0066b6a6d46e2c4d520905b997';
+String _$lightsControllerHash() => r'9d83e8682fb1ab35cc7738a2ef1aff1961e8a6bb';
 
 /// In-memory light registry. Fully user-managed: toggle on/off, add new
 /// named lights. Persistence across app restarts plugs in here later by
