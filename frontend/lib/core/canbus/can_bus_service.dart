@@ -95,34 +95,4 @@ class CanBusService {
     ));
   }
 
-  /// Toilet button state — legacy protocol: a 32-bit big-endian value in
-  /// an 8-byte frame sent straight to a fixed per-channel ID (sendCanHeader
-  /// in usrToiletPage.c), not the [cmd, channel, ...] shape newer nodes use.
-  Future<void> setToiletButton({required int channel, required bool isOn}) {
-    return _transport.send(_header(
-      id: CanProtocol.toiletButtonBaseId + channel,
-      value: isOn ? 1 : 0,
-    ));
-  }
-
-  /// Toilet PWM slider value (0-1000), same legacy header shape.
-  Future<void> setToiletSlider({required int channel, required int value}) {
-    return _transport.send(_header(
-      id: CanProtocol.toiletSliderBaseId + channel,
-      value: value,
-    ));
-  }
-
-  CanFrame _header({required int id, required int value}) {
-    return CanFrame(id: id, data: [
-      (value >> 24) & 0xFF,
-      (value >> 16) & 0xFF,
-      (value >> 8) & 0xFF,
-      value & 0xFF,
-      0,
-      0,
-      0,
-      0,
-    ]);
-  }
 }

@@ -7,10 +7,13 @@ import '../features/settings/presentation/settings_screen.dart';
 import '../features/sockets/presentation/sockets_screen.dart';
 import '../features/tanks/presentation/tanks_screen.dart';
 import '../features/temperatures/presentation/temperatures_screen.dart';
-import '../features/toilet/presentation/toilet_screen.dart';
 import 'package:flutter/widgets.dart';
 
 /// Ordered list of top-level screens swiped between in [RootShell].
+/// Note: there is no Toilet/Pumps screen — confirmed against the ESP32
+/// reference project's actual `PAGE_CONTROLS_MENU` wiring
+/// (usrGraphicalInterface.c `controls_buttons`) that usrToiletPage.c is
+/// never reachable from the real navigation, despite being compiled in.
 enum AppScreen {
   overview,
   batteries,
@@ -19,7 +22,6 @@ enum AppScreen {
   lights,
   sockets,
   bigRelay,
-  toilet,
   doors,
   settings,
 }
@@ -41,8 +43,6 @@ extension AppScreenWidget on AppScreen {
         return const SocketsScreen();
       case AppScreen.bigRelay:
         return const BigRelayScreen();
-      case AppScreen.toilet:
-        return const ToiletScreen();
       case AppScreen.doors:
         return const DoorsScreen();
       case AppScreen.settings:

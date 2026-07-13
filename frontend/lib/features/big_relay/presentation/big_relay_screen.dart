@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_dimensions.dart';
 import '../../../core/theme/app_text_styles.dart';
+import '../../../core/widgets/node_status_pill.dart';
 import '../../../core/widgets/section_label.dart';
 import '../application/big_relay_controller.dart';
 import 'widgets/big_relay_channel_tile.dart';
@@ -33,6 +34,8 @@ class BigRelayScreen extends ConsumerWidget {
               trailing: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
+                  const NodeStatusPill(),
+                  const SizedBox(width: 16),
                   Text('$onCount / 16 ON', style: AppTextStyles.sectionLabel),
                   const SizedBox(width: 20),
                   _AutoPairSwitch(

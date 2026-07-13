@@ -44,4 +44,12 @@ class LightsController extends _$LightsController {
     final id = '${DateTime.now().microsecondsSinceEpoch}';
     state = [...state, Light(id: id, name: name, icon: icon, isOn: false)];
   }
+
+  /// Matches the real ESP32 Lighting page's "Close All" button.
+  void closeAll() {
+    state = [for (final light in state) light.copyWith(isOn: false)];
+    for (var i = 0; i < state.length && i < 6; i++) {
+      ref.read(canBusServiceProvider).setLed(channel: i + 1, isOn: false);
+    }
+  }
 }

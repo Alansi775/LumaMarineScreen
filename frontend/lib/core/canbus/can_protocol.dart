@@ -1,7 +1,9 @@
 /// Command bytes and node IDs mirrored from the ESP32 master control unit
 /// reference project (`usrLightingPage.c`, `usrSocketsPage.c`,
-/// `usrBigRelayPage.h`, `usrToiletPage.c`, `usrShuntPage.h`,
-/// `usrCanDynamicIDMaster.h`). Keep these in sync if that protocol changes.
+/// `usrBigRelayPage.h`, `usrShuntPage.h`, `usrCanDynamicIDMaster.h`). Keep
+/// these in sync if that protocol changes. Note: `usrToiletPage.c` exists
+/// in that codebase but is never wired into real navigation (confirmed via
+/// `usrGraphicalInterface.c`'s `controls_buttons`) — no Toilet protocol here.
 class CanProtocol {
   const CanProtocol._();
 
@@ -34,10 +36,4 @@ class CanProtocol {
 
   // Big Shunt relay control (usrShuntPage.h) — data[1]=relay 1-2, data[2]=0/1
   static const bigShuntCmdSetRelay = 0x43;
-
-  // Toilet Control (usrToiletPage.c) — legacy fixed-ID protocol, predates
-  // the dynamic-node system. Values sent via sendCanHeader: a 32-bit
-  // big-endian value in an 8-byte frame, not a [cmd, channel, ...] frame.
-  static const toiletButtonBaseId = 0x400; // 0x400-0x405, one per channel
-  static const toiletSliderBaseId = 0x406; // 0x406-0x40B, one per channel
 }

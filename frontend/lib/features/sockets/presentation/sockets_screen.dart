@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_dimensions.dart';
 import '../../../core/theme/app_text_styles.dart';
+import '../../../core/widgets/node_status_pill.dart';
 import '../../../core/widgets/section_label.dart';
 import '../application/sockets_controller.dart';
 import 'widgets/socket_tile.dart';
@@ -30,17 +31,16 @@ class SocketsScreen extends ConsumerWidget {
           children: [
             SectionLabel(
               'SOCKETS',
-              trailing: GestureDetector(
-                onTap: notifier.allOff,
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      '$onCount / ${sockets.length} ON',
-                      style: AppTextStyles.sectionLabel,
-                    ),
-                    const SizedBox(width: 16),
-                    Container(
+              trailing: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const NodeStatusPill(),
+                  const SizedBox(width: 16),
+                  Text('$onCount / ${sockets.length} ON', style: AppTextStyles.sectionLabel),
+                  const SizedBox(width: 16),
+                  GestureDetector(
+                    onTap: notifier.allOff,
+                    child: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                       decoration: BoxDecoration(
                         color: AppColors.surface,
@@ -49,8 +49,8 @@ class SocketsScreen extends ConsumerWidget {
                       ),
                       child: Text('CLOSE ALL', style: AppTextStyles.caption.copyWith(letterSpacing: 1.2)),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
             const SizedBox(height: 20),
