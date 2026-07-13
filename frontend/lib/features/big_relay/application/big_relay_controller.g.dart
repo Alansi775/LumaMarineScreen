@@ -7,9 +7,12 @@ part of 'big_relay_controller.dart';
 // **************************************************************************
 
 String _$bigRelayControllerHash() =>
-    r'bb659c7bab829d7604b5be64cc2d52775e0fa35a';
+    r'84380251c48acfc54ec7e8aff6a4215c08426163';
 
 /// 16-channel relay bank with real I/O feedback (usrBigRelayPage.h/.c).
+/// Every action is rejected outright when no node is connected, exactly
+/// like the real firmware's "NODE NOT CONNECTED" status — including
+/// Auto Pair, which on the real device visibly refuses to toggle.
 ///
 /// Copied from [BigRelayController].
 @ProviderFor(BigRelayController)

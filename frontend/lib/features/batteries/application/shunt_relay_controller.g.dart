@@ -7,10 +7,11 @@ part of 'shunt_relay_controller.dart';
 // **************************************************************************
 
 String _$shuntRelayControllerHash() =>
-    r'e9061c02200d887864fe54f0c7f9512ec5914b99';
+    r'607513b4945f048c7dd3bc522915629a61933441';
 
 /// The Big Shunt card's 2 relay outputs (BIG_SHUNT_CMD_SET_RELAY,
-/// usrShuntPage.h) — index 0 = relay 1, index 1 = relay 2.
+/// usrShuntPage.h) — index 0 = relay 1, index 1 = relay 2. Rejected
+/// outright when disconnected, matching "Big shunt node not connected".
 ///
 /// Copied from [ShuntRelayController].
 @ProviderFor(ShuntRelayController)

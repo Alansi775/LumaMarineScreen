@@ -6,6 +6,7 @@ import '../../../core/theme/app_dimensions.dart';
 import '../../../core/theme/app_text_styles.dart';
 import '../../../core/widgets/node_status_pill.dart';
 import '../../../core/widgets/section_label.dart';
+import '../../batteries/presentation/widgets/shunt_relay_row.dart';
 import '../application/big_relay_controller.dart';
 import 'widgets/big_relay_channel_tile.dart';
 
@@ -74,6 +75,10 @@ class BigRelayScreen extends ConsumerWidget {
                 ],
               ),
             ),
+            const SizedBox(height: 20),
+            const SectionLabel('SHUNT RELAYS'),
+            const SizedBox(height: 12),
+            const ShuntRelayRow(),
           ],
         ),
       ),

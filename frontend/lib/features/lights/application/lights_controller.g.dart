@@ -6,11 +6,14 @@ part of 'lights_controller.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$lightsControllerHash() => r'03ac826ab0a9719f53c8061522aafac563599c2f';
+String _$lightsControllerHash() => r'c770cc9f75bb6f0066b6a6d46e2c4d520905b997';
 
 /// In-memory light registry. Fully user-managed: toggle on/off, add new
 /// named lights. Persistence across app restarts plugs in here later by
 /// swapping [build]'s seed + adding a save-on-mutation call — no UI change.
+/// The first 6 channels default to "PWM-1".."PWM-6" — the exact default
+/// names the ESP32 firmware ships with (`button_names[1]` in
+/// usrSettingsPage.c) before a user renames them via Settings.
 ///
 /// Copied from [LightsController].
 @ProviderFor(LightsController)

@@ -8,7 +8,6 @@ import '../application/battery_providers.dart';
 import 'widgets/backup_battery_card.dart';
 import 'widgets/circuit_row.dart';
 import 'widgets/main_battery_summary.dart';
-import 'widgets/shunt_relay_row.dart';
 
 class BatteriesScreen extends ConsumerWidget {
   const BatteriesScreen({super.key});
@@ -35,8 +34,6 @@ class BatteriesScreen extends ConsumerWidget {
                   const Expanded(child: MainBatterySummary()),
                   const SizedBox(height: AppDimensions.gutter),
                   const BackupBatteryCard(),
-                  const SizedBox(height: AppDimensions.gutter),
-                  const ShuntRelayRow(),
                 ],
               ),
             ),
