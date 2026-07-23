@@ -70,6 +70,19 @@ class LightsController extends _$LightsController {
     }
   }
 
+  /// Drives the vertical intensity bar — only meaningful while the
+  /// channel is on, matches LED_CMD_SET_BRIGHTNESS (usrLightingPage.c).
+  void setBrightness(String id, int value) {
+    final index = state.indexWhere((light) => light.id == id);
+    if (index == -1 || index >= 6) return;
+
+    state = [
+      for (final light in state)
+        if (light.id == id) light.copyWith(brightness: value) else light,
+    ];
+    ref.read(canBusServiceProvider).setLedBrightness(channel: index + 1, value: value);
+  }
+
   void addLight({required String name, required IconData icon}) {
     final id = '${DateTime.now().microsecondsSinceEpoch}';
     state = [...state, Light(id: id, name: name, icon: icon, isOn: false)];

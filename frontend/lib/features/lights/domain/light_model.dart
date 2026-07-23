@@ -8,6 +8,7 @@ class Light {
     required this.name,
     required this.icon,
     required this.isOn,
+    this.brightness = 1000,
   });
 
   final String id;
@@ -15,12 +16,16 @@ class Light {
   final IconData icon;
   final bool isOn;
 
-  Light copyWith({bool? isOn}) {
+  /// 0-1000, matches the ESP32 slider range (LED_CMD_SET_BRIGHTNESS).
+  final int brightness;
+
+  Light copyWith({bool? isOn, int? brightness}) {
     return Light(
       id: id,
       name: name,
       icon: icon,
       isOn: isOn ?? this.isOn,
+      brightness: brightness ?? this.brightness,
     );
   }
 }

@@ -6,7 +6,7 @@ part of 'sockets_controller.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$socketsControllerHash() => r'fcf13139abc35eca3377908e3f83888ba9a9fcce';
+String _$socketsControllerHash() => r'2ba998834e5b2a9c76f7e2f9131cddc9091c428e';
 
 /// Fixed 6-channel relay bank — matches the ESP32 Sockets Control page
 /// (RELAY_CMD_SET, usrSocketsPage.c) exactly, including the channel count

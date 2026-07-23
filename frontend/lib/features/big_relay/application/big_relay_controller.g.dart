@@ -7,7 +7,7 @@ part of 'big_relay_controller.dart';
 // **************************************************************************
 
 String _$bigRelayControllerHash() =>
-    r'43bcb413ff495e78ff102201fab824a6fe264faa';
+    r'923de52ae3e576879c11abee5ee5024be3ebdfcc';
 
 /// 16-channel relay bank with real I/O feedback (usrBigRelayPage.h/.c).
 /// Every action responds immediately (so the app demos smoothly) but

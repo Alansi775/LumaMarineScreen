@@ -4,6 +4,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../application/overview_providers.dart';
 
+/// The Overview screen's sole hero content — no batteries, no pressure,
+/// just time and date (manager's direction: their real project has
+/// neither, and this screen should stay simple).
 class TimeDateDisplay extends ConsumerWidget {
   const TimeDateDisplay({super.key});
 
@@ -25,12 +28,11 @@ class TimeDateDisplay extends ConsumerWidget {
         '${_weekdays[now.weekday - 1]} · ${now.day} ${_months[now.month - 1]}';
 
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        Text('$hh:$mm', style: AppTextStyles.displayNumeral),
-        const SizedBox(height: 6),
-        Text(date, style: AppTextStyles.sectionLabel),
+        Text('$hh:$mm', style: AppTextStyles.displayNumeral.copyWith(fontSize: 140)),
+        const SizedBox(height: 16),
+        Text(date, style: AppTextStyles.sectionLabel.copyWith(fontSize: 20, letterSpacing: 4)),
       ],
     );
   }

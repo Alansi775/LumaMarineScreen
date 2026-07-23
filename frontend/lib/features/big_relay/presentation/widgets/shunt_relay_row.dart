@@ -6,8 +6,10 @@ import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../application/shunt_relay_controller.dart';
 
-/// The Big Shunt card's 2 relay outputs, styled as the same premium
-/// glowing tile used for Lights/Sockets — not a small flat chip.
+/// The Big Shunt card's 2 relay outputs (usrShuntPage.h) — not part of
+/// the real Big Relay page, but the closest home for "extra relay
+/// controls" in our nav model. Same glowing tile treatment as
+/// Lights/Sockets.
 class ShuntRelayRow extends ConsumerWidget {
   const ShuntRelayRow({super.key});
 

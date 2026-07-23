@@ -2,73 +2,97 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/theme/app_colors.dart';
-import '../../../core/theme/app_dimensions.dart';
 import '../../../core/theme/app_text_styles.dart';
+import '../../../core/widgets/control_panel/control_page_header.dart';
+import '../../../core/widgets/control_panel/control_pill_button.dart';
+import '../../../core/widgets/control_panel/control_power_button.dart';
+import '../../../core/widgets/control_panel/control_sidebar_button.dart';
 import '../../../core/widgets/node_status_pill.dart';
-import '../../../core/widgets/section_label.dart';
 import '../application/sockets_controller.dart';
-import 'widgets/socket_tile.dart';
 
-class SocketsScreen extends ConsumerWidget {
+/// Sidebar (6 channels) + center detail (power button) — no right panel,
+/// relays are on/off only. Matches usrSocketsPage.c's real layout.
+class SocketsScreen extends ConsumerStatefulWidget {
   const SocketsScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<SocketsScreen> createState() => _SocketsScreenState();
+}
+
+class _SocketsScreenState extends ConsumerState<SocketsScreen> {
+  int _selectedIndex = 0;
+
+  @override
+  Widget build(BuildContext context) {
     final sockets = ref.watch(socketsControllerProvider);
     final notifier = ref.read(socketsControllerProvider.notifier);
-    final onCount = sockets.where((s) => s.isOn).length;
 
-    return SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(
-          AppDimensions.pagePadding,
-          AppDimensions.pagePadding,
-          AppDimensions.pagePadding,
-          AppDimensions.pagePadding + 40,
+    final index = _selectedIndex.clamp(0, sockets.length - 1);
+    final selected = sockets[index];
+
+    return Column(
+      children: [
+        ControlPageHeader(
+          icon: Icons.power_outlined,
+          title: 'SOCKETS',
+          subtitle: 'RELAY CONTROL',
+          trailing: const NodeStatusPill(),
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SectionLabel(
-              'SOCKETS',
-              trailing: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const NodeStatusPill(),
-                  const SizedBox(width: 16),
-                  Text('$onCount / ${sockets.length} ON', style: AppTextStyles.sectionLabel),
-                  const SizedBox(width: 16),
-                  GestureDetector(
-                    onTap: notifier.allOff,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                      decoration: BoxDecoration(
-                        color: AppColors.surface,
-                        borderRadius: BorderRadius.circular(AppDimensions.radiusSmall),
-                        border: Border.all(color: AppColors.hairline),
+        Expanded(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Container(
+                width: 280,
+                padding: const EdgeInsets.all(20),
+                decoration: const BoxDecoration(
+                  color: AppColors.surface,
+                  border: Border(right: BorderSide(color: AppColors.hairline)),
+                ),
+                child: Column(
+                  children: [
+                    Expanded(
+                      child: ListView.builder(
+                        itemCount: sockets.length,
+                        itemBuilder: (context, i) => ControlSidebarButton(
+                          label: sockets[i].name,
+                          isSelected: i == index,
+                          isOn: sockets[i].isOn,
+                          onTap: () => setState(() => _selectedIndex = i),
+                        ),
                       ),
-                      child: Text('CLOSE ALL', style: AppTextStyles.caption.copyWith(letterSpacing: 1.2)),
                     ),
+                    ControlPillButton(label: 'Close All', onTap: notifier.allOff),
+                  ],
+                ),
+              ),
+              Expanded(
+                child: Center(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        selected.name.toUpperCase(),
+                        style: AppTextStyles.title.copyWith(color: AppColors.accent, letterSpacing: 2),
+                      ),
+                      const SizedBox(height: 44),
+                      ControlPowerButton(
+                        isOn: selected.isOn,
+                        onTap: () => notifier.toggle(selected.id),
+                      ),
+                      const SizedBox(height: 28),
+                      Text(
+                        selected.isOn ? 'ACTIVE' : 'INACTIVE',
+                        style: AppTextStyles.caption.copyWith(letterSpacing: 2),
+                      ),
+                    ],
                   ),
-                ],
+                ),
               ),
-            ),
-            const SizedBox(height: 20),
-            Expanded(
-              child: GridView.count(
-                crossAxisCount: 3,
-                mainAxisSpacing: AppDimensions.gutter,
-                crossAxisSpacing: AppDimensions.gutter,
-                childAspectRatio: 1.6,
-                children: [
-                  for (final socket in sockets)
-                    SocketTile(socket: socket, onToggle: () => notifier.toggle(socket.id)),
-                ],
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
-      ),
+      ],
     );
   }
 }

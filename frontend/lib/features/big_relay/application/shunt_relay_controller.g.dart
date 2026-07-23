@@ -7,7 +7,7 @@ part of 'shunt_relay_controller.dart';
 // **************************************************************************
 
 String _$shuntRelayControllerHash() =>
-    r'5a1f896d0ed322c4d6c114406ca0846b910464b7';
+    r'8f135358edeb95dc9445f84dc8ab5d1c1caaa87f';
 
 /// The Big Shunt card's 2 relay outputs (BIG_SHUNT_CMD_SET_RELAY,
 /// usrShuntPage.h) — index 0 = relay 1, index 1 = relay 2. Snaps back

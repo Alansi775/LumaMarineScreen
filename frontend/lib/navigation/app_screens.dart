@@ -1,4 +1,3 @@
-import '../features/batteries/presentation/batteries_screen.dart';
 import '../features/big_relay/presentation/big_relay_screen.dart';
 import '../features/doors/presentation/doors_screen.dart';
 import '../features/lights/presentation/lights_screen.dart';
@@ -6,19 +5,17 @@ import '../features/overview/presentation/overview_screen.dart';
 import '../features/settings/presentation/settings_screen.dart';
 import '../features/sockets/presentation/sockets_screen.dart';
 import '../features/tanks/presentation/tanks_screen.dart';
-import '../features/temperatures/presentation/temperatures_screen.dart';
 import 'package:flutter/widgets.dart';
 
 /// Ordered list of top-level screens swiped between in [RootShell].
-/// Note: there is no Toilet/Pumps screen — confirmed against the ESP32
-/// reference project's actual `PAGE_CONTROLS_MENU` wiring
-/// (usrGraphicalInterface.c `controls_buttons`) that usrToiletPage.c is
-/// never reachable from the real navigation, despite being compiled in.
+/// Matches the ESP32 reference project's real page set exactly — no
+/// Batteries, Temperatures, or Toilet screens, none of those exist on
+/// real hardware (confirmed against `usrGraphicalInterface.c`'s
+/// `main_buttons`/`controls_buttons` and the manager's direct comparison
+/// against the physical ESP32 screen, 2026-07-23).
 enum AppScreen {
   overview,
-  batteries,
   tanks,
-  temperatures,
   lights,
   sockets,
   bigRelay,
@@ -31,12 +28,8 @@ extension AppScreenWidget on AppScreen {
     switch (this) {
       case AppScreen.overview:
         return const OverviewScreen();
-      case AppScreen.batteries:
-        return const BatteriesScreen();
       case AppScreen.tanks:
         return const TanksScreen();
-      case AppScreen.temperatures:
-        return const TemperaturesScreen();
       case AppScreen.lights:
         return const LightsScreen();
       case AppScreen.sockets:
