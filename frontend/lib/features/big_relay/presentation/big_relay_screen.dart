@@ -9,7 +9,6 @@ import '../../../core/widgets/control_panel/control_power_button.dart';
 import '../../../core/widgets/control_panel/control_sidebar_button.dart';
 import '../../../core/widgets/node_status_pill.dart';
 import '../application/big_relay_controller.dart';
-import 'widgets/shunt_relay_row.dart';
 
 /// Scrollable 16-channel sidebar (with a live input-feedback dot per row)
 /// + center detail panel (power button, ACTIVE/INACTIVE, INPUT PASSIVE/
@@ -119,17 +118,6 @@ class _BigRelayScreenState extends ConsumerState<BigRelayScreen> {
                   ),
                 ),
               ),
-            ],
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.fromLTRB(28, 16, 28, 24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('SHUNT RELAYS', style: AppTextStyles.sectionLabel),
-              const SizedBox(height: 12),
-              const ShuntRelayRow(),
             ],
           ),
         ),

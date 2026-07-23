@@ -1,14 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/theme/app_text_styles.dart';
 import '../../../core/widgets/control_panel/control_page_header.dart';
+import '../../../core/widgets/control_panel/control_pill_button.dart';
 import '../application/tanks_controller.dart';
+import '../domain/tank_model.dart';
+import 'widgets/add_tank_tile.dart';
 import 'widgets/tank_grid_card.dart';
 import 'widgets/tank_scroll_more_button.dart';
 
-/// 3-column scrollable tank grid with an animated "scroll for more"
-/// button — matches usrTankLevelPage.c's real grid + vertical-scroll
-/// page_container pattern.
+/// Two labeled sensor-type sections (0-190Ω / 30-240Ω), 3 tanks each by
+/// default, whole page vertically scrollable with an animated
+/// "scroll for more" button — matches usrTankLevelPage.c's real
+/// grid + `LV_DIR_VER` page_container scroll pattern. TEST/REAL toggle
+/// in the header mirrors their `TEST_MODE` exactly.
 class TanksScreen extends ConsumerStatefulWidget {
   const TanksScreen({super.key});
 
@@ -27,7 +33,7 @@ class _TanksScreenState extends ConsumerState<TanksScreen> {
 
   void _scrollMore() {
     if (!_scrollController.hasClients) return;
-    final target = (_scrollController.offset + 340)
+    final target = (_scrollController.offset + 320)
         .clamp(0.0, _scrollController.position.maxScrollExtent);
     _scrollController.animateTo(
       target,
@@ -38,41 +44,50 @@ class _TanksScreenState extends ConsumerState<TanksScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final tanks = ref.watch(tanksControllerProvider);
+    final state = ref.watch(tanksControllerProvider);
     final notifier = ref.read(tanksControllerProvider.notifier);
-    final hasMore = tanks.length > 3;
+
+    final ohms0Tanks = state.tanks.where((t) => t.sensorType == TankSensorType.ohms0to190).toList();
+    final ohms30Tanks = state.tanks.where((t) => t.sensorType == TankSensorType.ohms30to240).toList();
 
     return Column(
       children: [
-        const ControlPageHeader(
+        ControlPageHeader(
           icon: Icons.water_drop_outlined,
           title: 'TANK LEVEL',
-          subtitle: 'TANK MONITOR',
+          subtitle: state.testMode ? 'TANK MONITOR [TEST MODE]' : 'TANK MONITOR [REAL MODE]',
+          trailing: ControlPillButton(
+            label: state.testMode ? 'TEST' : 'REAL',
+            active: state.testMode,
+            onTap: () => notifier.setTestMode(!state.testMode),
+          ),
         ),
         Expanded(
           child: Stack(
             children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(28, 24, 28, 24),
-                child: GridView.builder(
-                  controller: _scrollController,
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 3,
-                    mainAxisSpacing: 20,
-                    crossAxisSpacing: 20,
-                    childAspectRatio: 0.68,
-                  ),
-                  itemCount: tanks.length,
-                  itemBuilder: (context, i) {
-                    final tank = tanks[i];
-                    return TankGridCard(
-                      tank: tank,
-                      onEmpty: tank.id == 'waste' ? () => notifier.empty(tank.id) : null,
-                    );
-                  },
+              SingleChildScrollView(
+                controller: _scrollController,
+                padding: const EdgeInsets.fromLTRB(28, 24, 28, 80),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('0–190Ω', style: AppTextStyles.sectionLabel),
+                    const SizedBox(height: 16),
+                    _TankGrid(
+                      tanks: ohms0Tanks,
+                      onAdd: () => notifier.addTank(TankSensorType.ohms0to190),
+                    ),
+                    const SizedBox(height: 32),
+                    Text('30–240Ω', style: AppTextStyles.sectionLabel),
+                    const SizedBox(height: 16),
+                    _TankGrid(
+                      tanks: ohms30Tanks,
+                      onAdd: () => notifier.addTank(TankSensorType.ohms30to240),
+                    ),
+                  ],
                 ),
               ),
-              if (hasMore)
+              if (state.tanks.length > 6)
                 Positioned(
                   bottom: 12,
                   left: 0,
@@ -83,6 +98,32 @@ class _TanksScreenState extends ConsumerState<TanksScreen> {
           ),
         ),
       ],
+    );
+  }
+}
+
+class _TankGrid extends StatelessWidget {
+  const _TankGrid({required this.tanks, required this.onAdd});
+
+  final List<Tank> tanks;
+  final VoidCallback onAdd;
+
+  @override
+  Widget build(BuildContext context) {
+    return GridView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 3,
+        mainAxisSpacing: 20,
+        crossAxisSpacing: 20,
+        childAspectRatio: 0.68,
+      ),
+      itemCount: tanks.length + 1,
+      itemBuilder: (context, i) {
+        if (i == tanks.length) return AddTankTile(onTap: onAdd);
+        return TankGridCard(tank: tanks[i]);
+      },
     );
   }
 }

@@ -3,22 +3,25 @@ import '../features/doors/presentation/doors_screen.dart';
 import '../features/lights/presentation/lights_screen.dart';
 import '../features/overview/presentation/overview_screen.dart';
 import '../features/settings/presentation/settings_screen.dart';
+import '../features/shunt/presentation/shunt_screen.dart';
 import '../features/sockets/presentation/sockets_screen.dart';
 import '../features/tanks/presentation/tanks_screen.dart';
 import 'package:flutter/widgets.dart';
 
 /// Ordered list of top-level screens swiped between in [RootShell].
-/// Matches the ESP32 reference project's real page set exactly — no
-/// Batteries, Temperatures, or Toilet screens, none of those exist on
-/// real hardware (confirmed against `usrGraphicalInterface.c`'s
+/// Matches the ESP32 reference project's real page set and menu order
+/// exactly — Controls (Lighting/Sockets/Big Relay), Tank Level, Shunt.
+/// No Batteries, Temperatures, or Toilet screens — none of those exist
+/// on real hardware (confirmed against `usrGraphicalInterface.c`'s
 /// `main_buttons`/`controls_buttons` and the manager's direct comparison
 /// against the physical ESP32 screen, 2026-07-23).
 enum AppScreen {
   overview,
-  tanks,
   lights,
   sockets,
   bigRelay,
+  tanks,
+  shunt,
   doors,
   settings,
 }
@@ -28,14 +31,16 @@ extension AppScreenWidget on AppScreen {
     switch (this) {
       case AppScreen.overview:
         return const OverviewScreen();
-      case AppScreen.tanks:
-        return const TanksScreen();
       case AppScreen.lights:
         return const LightsScreen();
       case AppScreen.sockets:
         return const SocketsScreen();
       case AppScreen.bigRelay:
         return const BigRelayScreen();
+      case AppScreen.tanks:
+        return const TanksScreen();
+      case AppScreen.shunt:
+        return const ShuntScreen();
       case AppScreen.doors:
         return const DoorsScreen();
       case AppScreen.settings:

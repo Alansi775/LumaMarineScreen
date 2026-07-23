@@ -28,20 +28,25 @@ class TankConfigSheet extends ConsumerStatefulWidget {
 }
 
 class _TankConfigSheetState extends ConsumerState<TankConfigSheet> {
+  late final TextEditingController _nameController =
+      TextEditingController(text: widget.tank.name);
   late final TextEditingController _capacityController =
       TextEditingController(text: widget.tank.capacityLiters.round().toString());
   late TankSensorType _sensorType = widget.tank.sensorType;
 
   @override
   void dispose() {
+    _nameController.dispose();
     _capacityController.dispose();
     super.dispose();
   }
 
   void _save() {
+    final name = _nameController.text.trim();
     final capacity = double.tryParse(_capacityController.text) ?? widget.tank.capacityLiters;
     ref.read(tanksControllerProvider.notifier).configure(
           widget.tank.id,
+          name: name.isEmpty ? widget.tank.name : name,
           capacityLiters: capacity,
           sensorType: _sensorType,
         );
@@ -75,8 +80,33 @@ class _TankConfigSheetState extends ConsumerState<TankConfigSheet> {
               ),
             ),
             const SizedBox(height: 22),
-            Text('CONFIGURE — ${widget.tank.name.toUpperCase()}', style: AppTextStyles.sectionLabel),
+            Text('CONFIGURE TANK', style: AppTextStyles.sectionLabel),
             const SizedBox(height: 18),
+            Text('NAME', style: AppTextStyles.caption),
+            const SizedBox(height: 8),
+            TextField(
+              controller: _nameController,
+              style: AppTextStyles.bodyStrong.copyWith(color: AppColors.textPrimary),
+              cursorColor: AppColors.accent,
+              decoration: InputDecoration(
+                filled: true,
+                fillColor: AppColors.surface,
+                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(AppDimensions.radiusSmall),
+                  borderSide: const BorderSide(color: AppColors.hairline),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(AppDimensions.radiusSmall),
+                  borderSide: const BorderSide(color: AppColors.hairline),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(AppDimensions.radiusSmall),
+                  borderSide: const BorderSide(color: AppColors.accent),
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
             Text('CAPACITY (LITERS)', style: AppTextStyles.caption),
             const SizedBox(height: 8),
             TextField(
