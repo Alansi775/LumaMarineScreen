@@ -37,7 +37,7 @@ class ControlPillButton extends StatelessWidget {
           label.toUpperCase(),
           style: TextStyle(
             color: active ? AppColors.accent : Colors.white70,
-            fontSize: 11,
+            fontSize: 13,
             fontWeight: FontWeight.w600,
             letterSpacing: 2,
           ),

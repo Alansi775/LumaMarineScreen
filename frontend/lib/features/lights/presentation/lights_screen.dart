@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_dimensions.dart';
 import '../../../core/theme/app_text_styles.dart';
 import '../../../core/widgets/control_panel/segmented_intensity_bar.dart';
 import '../../../core/widgets/node_status_pill.dart';
@@ -107,7 +107,9 @@ class _LightsScreenState extends ConsumerState<LightsScreen> {
 
                 // ================= المحتوى الرئيسي =================
                 Expanded(
-                  child: Row(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: AppDimensions.navArrowGutter),
+                    child: Row(
                     children: [
                       // 1. القائمة الجانبية (نظيفة، بدون صناديق)
                       SizedBox(
@@ -231,6 +233,7 @@ class _LightsScreenState extends ConsumerState<LightsScreen> {
                             : const SizedBox.shrink(),
                       ),
                     ],
+                    ),
                   ),
                 ),
               ],
@@ -266,32 +269,41 @@ class _MinimalZoneItem extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 20),
         child: Row(
           children: [
-            // النقطة الجانبية التي توضح حالة التفعيل
+            // أيقونة توضح حالة التفعيل: مصباح مضيء أو مطفأ
+            AnimatedSwitcher(
+              duration: const Duration(milliseconds: 250),
+              child: Icon(
+                isOn ? Icons.lightbulb_rounded : Icons.lightbulb_outline_rounded,
+                key: ValueKey(isOn),
+                size: 20,
+                color: isOn ? const Color(0xFF00E5FF) : (isSelected ? Colors.white54 : Colors.white24),
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: AnimatedDefaultTextStyle(
+                duration: const Duration(milliseconds: 200),
+                style: TextStyle(
+                  color: isSelected ? Colors.white : Colors.white38,
+                  fontSize: isSelected ? 18 : 17,
+                  fontWeight: isSelected ? FontWeight.w500 : FontWeight.w400,
+                  letterSpacing: 2,
+                ),
+                child: Text(label),
+              ),
+            ),
             AnimatedContainer(
               duration: const Duration(milliseconds: 300),
               width: 6,
               height: 6,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: isOn 
-                    ? const Color(0xFF00E5FF) 
+                color: isOn
+                    ? const Color(0xFF00E5FF)
                     : (isSelected ? Colors.white54 : Colors.transparent),
                 boxShadow: isOn
                     ? [const BoxShadow(color: Color(0xFF00E5FF), blurRadius: 6)]
                     : [],
-              ),
-            ),
-            const SizedBox(width: 20),
-            Expanded(
-              child: AnimatedDefaultTextStyle(
-                duration: const Duration(milliseconds: 200),
-                style: TextStyle(
-                  color: isSelected ? Colors.white : Colors.white38,
-                  fontSize: isSelected ? 15 : 14,
-                  fontWeight: isSelected ? FontWeight.w500 : FontWeight.w400,
-                  letterSpacing: 2,
-                ),
-                child: Text(label),
               ),
             ),
           ],
@@ -387,7 +399,7 @@ class _MinimalActionButton extends StatelessWidget {
           label,
           style: TextStyle(
             color: isMuted ? Colors.white38 : Colors.white70,
-            fontSize: 11,
+            fontSize: 13,
             fontWeight: FontWeight.w600,
             letterSpacing: 2,
           ),

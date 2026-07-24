@@ -91,7 +91,13 @@ class _TankConfigSheetState extends ConsumerState<TankConfigSheet> {
             right: BorderSide(color: AppColors.hairline),
           ),
         ),
-        child: Column(
+        // Scrollable — added keyboard bottom padding can push total
+        // content past the screen's real height without this, causing a
+        // RenderFlex overflow (the yellow/black hazard stripes) instead
+        // of just scrolling into view.
+        child: SingleChildScrollView(
+          physics: const BouncingScrollPhysics(),
+          child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -164,6 +170,7 @@ class _TankConfigSheetState extends ConsumerState<TankConfigSheet> {
               ),
             ),
           ],
+          ),
         ),
       ),
     );

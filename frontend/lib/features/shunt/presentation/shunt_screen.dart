@@ -43,7 +43,10 @@ class ShuntScreen extends ConsumerWidget {
           ),
           Expanded(
             child: Padding(
-              padding: const EdgeInsets.all(28),
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppDimensions.navArrowGutter,
+                vertical: 28,
+              ),
               child: Column(
                 children: [
                   Row(

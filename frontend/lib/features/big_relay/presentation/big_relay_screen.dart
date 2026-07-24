@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_dimensions.dart';
 import '../../../core/widgets/control_panel/control_page_header.dart';
 import '../../../core/widgets/control_panel/control_pill_button.dart';
 import '../../../core/widgets/control_panel/control_power_button.dart';
@@ -39,7 +40,9 @@ class _BigRelayScreenState extends ConsumerState<BigRelayScreen> {
             trailing: const NodeStatusPill(),
           ),
           Expanded(
-            child: Row(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: AppDimensions.navArrowGutter),
+              child: Row(
               children: [
                 SizedBox(
                   width: 260,
@@ -135,6 +138,7 @@ class _BigRelayScreenState extends ConsumerState<BigRelayScreen> {
                   ),
                 ),
               ],
+              ),
             ),
           ),
         ],

@@ -10,6 +10,11 @@ class AppDimensions {
   static const double pagePadding = 32;
   static const double gutter = 20;
 
+  /// Horizontal clearance every full-width screen keeps from both edges
+  /// so its content never sits under the floating left/right nav arrows
+  /// (68px circles centered at x=10 / right:10 in [RootShell]).
+  static const double navArrowGutter = 84;
+
   static const double radiusSmall = 12;
   static const double radiusMedium = 20;
   static const double radiusLarge = 28;

@@ -29,9 +29,9 @@ class DoorsScreen extends ConsumerWidget {
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(
-                  AppDimensions.pagePadding,
+                  AppDimensions.navArrowGutter,
                   0,
-                  AppDimensions.pagePadding,
+                  AppDimensions.navArrowGutter,
                   AppDimensions.pagePadding + 40,
                 ),
                 child: Column(

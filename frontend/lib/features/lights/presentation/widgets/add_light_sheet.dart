@@ -91,7 +91,14 @@ class _AddLightSheetState extends ConsumerState<AddLightSheet> {
               borderRadius: BorderRadius.circular(32),
               border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
             ),
-            child: Column(
+            // Scrollable, not just Column(mainAxisSize.min) — the keyboard's
+            // extra bottom padding can push total content past the screen's
+            // real height on this device, which without a scroll view
+            // overflows (the classic yellow/black hazard-stripe warning)
+            // instead of just scrolling into view.
+            child: SingleChildScrollView(
+              physics: const BouncingScrollPhysics(),
+              child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -181,6 +188,7 @@ class _AddLightSheetState extends ConsumerState<AddLightSheet> {
                   ),
                 ),
               ],
+              ),
             ),
           ),
         ),
