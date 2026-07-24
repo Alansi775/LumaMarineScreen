@@ -4,6 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/theme/app_text_styles.dart';
+import '../../../../core/widgets/keyboard/app_text_field.dart';
+import '../../../../core/widgets/keyboard/keyboard_target.dart';
 import '../../application/tanks_controller.dart';
 import '../../domain/tank_model.dart';
 
@@ -36,6 +38,10 @@ class _TankConfigSheetState extends ConsumerState<TankConfigSheet> {
 
   @override
   void dispose() {
+    final active = ref.read(keyboardTargetProvider);
+    if (active == _nameController || active == _capacityController) {
+      ref.read(keyboardTargetProvider.notifier).state = null;
+    }
     _nameController.dispose();
     _capacityController.dispose();
     super.dispose();
@@ -84,54 +90,11 @@ class _TankConfigSheetState extends ConsumerState<TankConfigSheet> {
             const SizedBox(height: 18),
             Text('NAME', style: AppTextStyles.caption),
             const SizedBox(height: 8),
-            TextField(
-              controller: _nameController,
-              style: AppTextStyles.bodyStrong.copyWith(color: AppColors.textPrimary),
-              cursorColor: AppColors.accent,
-              decoration: InputDecoration(
-                filled: true,
-                fillColor: AppColors.surface,
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(AppDimensions.radiusSmall),
-                  borderSide: const BorderSide(color: AppColors.hairline),
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(AppDimensions.radiusSmall),
-                  borderSide: const BorderSide(color: AppColors.hairline),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(AppDimensions.radiusSmall),
-                  borderSide: const BorderSide(color: AppColors.accent),
-                ),
-              ),
-            ),
+            AppTextField(controller: _nameController, hintText: 'Tank name'),
             const SizedBox(height: 20),
             Text('CAPACITY (LITERS)', style: AppTextStyles.caption),
             const SizedBox(height: 8),
-            TextField(
-              controller: _capacityController,
-              keyboardType: TextInputType.number,
-              style: AppTextStyles.bodyStrong.copyWith(color: AppColors.textPrimary),
-              cursorColor: AppColors.accent,
-              decoration: InputDecoration(
-                filled: true,
-                fillColor: AppColors.surface,
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(AppDimensions.radiusSmall),
-                  borderSide: const BorderSide(color: AppColors.hairline),
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(AppDimensions.radiusSmall),
-                  borderSide: const BorderSide(color: AppColors.hairline),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(AppDimensions.radiusSmall),
-                  borderSide: const BorderSide(color: AppColors.accent),
-                ),
-              ),
-            ),
+            AppTextField(controller: _capacityController, hintText: '200', numeric: true),
             const SizedBox(height: 20),
             Text('SENSOR TYPE', style: AppTextStyles.caption),
             const SizedBox(height: 10),

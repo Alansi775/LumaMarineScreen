@@ -24,16 +24,39 @@ class TanksScreen extends ConsumerStatefulWidget {
 
 class _TanksScreenState extends ConsumerState<TanksScreen> {
   final _scrollController = ScrollController();
+  bool _canScrollUp = false;
+  bool _canScrollDown = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_updateScrollState);
+    WidgetsBinding.instance.addPostFrameCallback((_) => _updateScrollState());
+  }
 
   @override
   void dispose() {
+    _scrollController.removeListener(_updateScrollState);
     _scrollController.dispose();
     super.dispose();
   }
 
-  void _scrollMore() {
+  void _updateScrollState() {
     if (!_scrollController.hasClients) return;
-    final target = (_scrollController.offset + 320)
+    final position = _scrollController.position;
+    final canUp = position.pixels > 4;
+    final canDown = position.pixels < position.maxScrollExtent - 4;
+    if (canUp != _canScrollUp || canDown != _canScrollDown) {
+      setState(() {
+        _canScrollUp = canUp;
+        _canScrollDown = canDown;
+      });
+    }
+  }
+
+  void _scrollBy(double delta) {
+    if (!_scrollController.hasClients) return;
+    final target = (_scrollController.offset + delta)
         .clamp(0.0, _scrollController.position.maxScrollExtent);
     _scrollController.animateTo(
       target,
@@ -46,6 +69,7 @@ class _TanksScreenState extends ConsumerState<TanksScreen> {
   Widget build(BuildContext context) {
     final state = ref.watch(tanksControllerProvider);
     final notifier = ref.read(tanksControllerProvider.notifier);
+    WidgetsBinding.instance.addPostFrameCallback((_) => _updateScrollState());
 
     final ohms0Tanks = state.tanks.where((t) => t.sensorType == TankSensorType.ohms0to190).toList();
     final ohms30Tanks = state.tanks.where((t) => t.sensorType == TankSensorType.ohms30to240).toList();
@@ -87,12 +111,28 @@ class _TanksScreenState extends ConsumerState<TanksScreen> {
                   ],
                 ),
               ),
-              if (state.tanks.length > 6)
+              if (_canScrollUp)
+                Positioned(
+                  top: 8,
+                  left: 0,
+                  right: 0,
+                  child: Center(
+                    child: TankScrollMoreButton(
+                      pointDown: false,
+                      onTap: () => _scrollBy(-320),
+                    ),
+                  ),
+                ),
+              if (_canScrollDown)
                 Positioned(
                   bottom: 12,
                   left: 0,
                   right: 0,
-                  child: Center(child: TankScrollMoreButton(onTap: _scrollMore)),
+                  child: Center(
+                    child: TankScrollMoreButton(
+                      onTap: () => _scrollBy(320),
+                    ),
+                  ),
                 ),
             ],
           ),

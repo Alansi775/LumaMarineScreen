@@ -4,6 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/theme/app_text_styles.dart';
+import '../../../../core/widgets/keyboard/app_text_field.dart';
+import '../../../../core/widgets/keyboard/keyboard_target.dart';
 import '../../application/lights_controller.dart';
 import '../../domain/light_model.dart';
 
@@ -29,6 +31,9 @@ class _AddLightSheetState extends ConsumerState<AddLightSheet> {
 
   @override
   void dispose() {
+    if (ref.read(keyboardTargetProvider) == _controller) {
+      ref.read(keyboardTargetProvider.notifier).state = null;
+    }
     _controller.dispose();
     super.dispose();
   }
@@ -79,32 +84,7 @@ class _AddLightSheetState extends ConsumerState<AddLightSheet> {
             const SizedBox(height: 22),
             Text('ADD LIGHT', style: AppTextStyles.sectionLabel),
             const SizedBox(height: 18),
-            TextField(
-              controller: _controller,
-              autofocus: true,
-              style: AppTextStyles.bodyStrong.copyWith(color: AppColors.textPrimary),
-              cursorColor: AppColors.accent,
-              decoration: InputDecoration(
-                hintText: 'e.g. Salon Lamp',
-                hintStyle: AppTextStyles.body,
-                filled: true,
-                fillColor: AppColors.surface,
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(AppDimensions.radiusSmall),
-                  borderSide: const BorderSide(color: AppColors.hairline),
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(AppDimensions.radiusSmall),
-                  borderSide: const BorderSide(color: AppColors.hairline),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(AppDimensions.radiusSmall),
-                  borderSide: const BorderSide(color: AppColors.accent),
-                ),
-              ),
-              onSubmitted: (_) => _submit(),
-            ),
+            AppTextField(controller: _controller, hintText: 'e.g. Salon Lamp'),
             const SizedBox(height: 20),
             Wrap(
               spacing: 12,
