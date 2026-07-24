@@ -9,13 +9,22 @@ import '../../../../core/widgets/keyboard/keyboard_target.dart';
 import '../../application/tanks_controller.dart';
 import '../../domain/tank_model.dart';
 
+/// Tracks whichever text controller (name or capacity) the currently
+/// open sheet last bound to the keyboard — lets `whenComplete` clear it
+/// without touching a possibly-disposed widget's `ref`.
+final _lastTankFieldControllerProvider = StateProvider<TextEditingController?>((ref) => null);
+
 Future<void> showTankConfigSheet(BuildContext context, Tank tank) {
+  final container = ProviderScope.containerOf(context, listen: false);
   return showModalBottomSheet(
     context: context,
     backgroundColor: Colors.transparent,
     isScrollControlled: true,
     builder: (_) => TankConfigSheet(tank: tank),
-  );
+  ).whenComplete(() {
+    final controller = container.read(_lastTankFieldControllerProvider);
+    if (controller != null) clearKeyboardTargetIfMatches(container, controller);
+  });
 }
 
 /// Capacity + sensor type editor — mirrors the ESP32 tank config popup
@@ -38,10 +47,6 @@ class _TankConfigSheetState extends ConsumerState<TankConfigSheet> {
 
   @override
   void dispose() {
-    final active = ref.read(keyboardTargetProvider);
-    if (active == _nameController || active == _capacityController) {
-      ref.read(keyboardTargetProvider.notifier).state = null;
-    }
     _nameController.dispose();
     _capacityController.dispose();
     super.dispose();
@@ -61,8 +66,20 @@ class _TankConfigSheetState extends ConsumerState<TankConfigSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final active = ref.watch(keyboardTargetProvider);
+    final keyboardShowing = active == _nameController || active == _capacityController;
+    if (keyboardShowing) {
+      // Recorded reactively (not via a tap handler) so `whenComplete` in
+      // showTankConfigSheet can find the right controller to clear later.
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) ref.read(_lastTankFieldControllerProvider.notifier).state = active;
+      });
+    }
+
     return Padding(
-      padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+      padding: EdgeInsets.only(
+        bottom: MediaQuery.of(context).viewInsets.bottom + (keyboardShowing ? kAppKeyboardHeight : 0),
+      ),
       child: Container(
         padding: const EdgeInsets.fromLTRB(28, 24, 28, 32),
         decoration: const BoxDecoration(

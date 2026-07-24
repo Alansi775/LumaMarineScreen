@@ -7,11 +7,12 @@ part of 'shunt_relay_controller.dart';
 // **************************************************************************
 
 String _$shuntRelayControllerHash() =>
-    r'8f135358edeb95dc9445f84dc8ab5d1c1caaa87f';
+    r'9fa4d754d8e3134611c59d4833d061457c188e99';
 
 /// The Big Shunt card's 2 relay outputs (BIG_SHUNT_CMD_SET_RELAY,
-/// usrShuntPage.h) — index 0 = relay 1, index 1 = relay 2. Snaps back
-/// after [NodeConnection.revertDelay] since no shunt node is connected.
+/// usrShuntPage.h) — index 0 = relay 1, index 1 = relay 2. Toggles and
+/// stays — [NodeStatusPill] is the honest signal about whether hardware
+/// is actually there, not a state that reverts itself.
 ///
 /// Copied from [ShuntRelayController].
 @ProviderFor(ShuntRelayController)

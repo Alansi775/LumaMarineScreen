@@ -4,8 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_dimensions.dart';
 import '../../../core/theme/app_text_styles.dart';
+import '../../../core/widgets/control_panel/control_page_header.dart';
 import '../../../core/widgets/luma_card.dart';
-import '../../../core/widgets/section_label.dart';
 import '../application/settings_controller.dart';
 import 'widgets/pin_dots.dart';
 import 'widgets/pin_keypad.dart';
@@ -104,37 +104,42 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(
-          AppDimensions.pagePadding,
-          AppDimensions.pagePadding,
-          AppDimensions.pagePadding,
-          AppDimensions.pagePadding + 40,
-        ),
+    return Container(
+      color: const Color(0xFF07080A),
+      child: SafeArea(
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SectionLabel('SETTINGS'),
-            const SizedBox(height: 24),
+            const ControlPageHeader(
+              icon: Icons.settings_outlined,
+              title: 'SETTINGS',
+              subtitle: 'ACCESS & SECURITY',
+            ),
             Expanded(
-              child: Center(
-                child: _step == _ChangePinStep.idle
-                    ? _IdleCard(
-                        onChangePin: _startChange,
-                        message: _error ?? _success,
-                        isError: _error != null,
-                      )
-                    : Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(_label, style: AppTextStyles.sectionLabel.copyWith(letterSpacing: 3)),
-                          const SizedBox(height: 24),
-                          PinDots(length: _buffer.length),
-                          const SizedBox(height: 24),
-                          PinKeypad(onDigit: _onDigit, onBackspace: _onBackspace),
-                        ],
-                      ),
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(
+                  AppDimensions.pagePadding,
+                  0,
+                  AppDimensions.pagePadding,
+                  AppDimensions.pagePadding + 40,
+                ),
+                child: Center(
+                  child: _step == _ChangePinStep.idle
+                      ? _IdleCard(
+                          onChangePin: _startChange,
+                          message: _error ?? _success,
+                          isError: _error != null,
+                        )
+                      : Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(_label, style: AppTextStyles.sectionLabel.copyWith(letterSpacing: 3)),
+                            const SizedBox(height: 24),
+                            PinDots(length: _buffer.length),
+                            const SizedBox(height: 24),
+                            PinKeypad(onDigit: _onDigit, onBackspace: _onBackspace),
+                          ],
+                        ),
+                ),
               ),
             ),
           ],

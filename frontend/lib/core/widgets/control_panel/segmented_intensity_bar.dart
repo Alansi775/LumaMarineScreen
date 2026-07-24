@@ -34,7 +34,10 @@ class SegmentedIntensityBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final activeCount = ((value / 1000) * segmentCount).round();
+    // Exact bottom-up fill position in segment units, e.g. 9.6 for 96%
+    // with 10 segments — segment 9 (the top-most active one) should only
+    // be 60% filled, not fully on, so 960/1000 doesn't read as "full".
+    final exactPosition = (value / 1000) * segmentCount;
 
     return GestureDetector(
       onPanDown: (d) => _handleDrag(d.localPosition),
@@ -45,7 +48,9 @@ class SegmentedIntensityBar extends StatelessWidget {
         child: Column(
           children: [
             for (var i = segmentCount - 1; i >= 0; i--) ...[
-              Expanded(child: _Segment(active: enabled && i < activeCount)),
+              Expanded(
+                child: _Segment(fill: enabled ? (exactPosition - i).clamp(0.0, 1.0) : 0.0),
+              ),
               if (i != 0) const SizedBox(height: 5),
             ],
           ],
@@ -56,17 +61,19 @@ class SegmentedIntensityBar extends StatelessWidget {
 }
 
 class _Segment extends StatelessWidget {
-  const _Segment({required this.active});
+  const _Segment({required this.fill});
 
-  final bool active;
+  /// 0.0-1.0 — how much of this segment is lit, bottom-up.
+  final double fill;
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 120),
+    final active = fill > 0;
+    return Container(
       width: double.infinity,
+      clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
-        color: active ? AppColors.accent : AppColors.gaugeTrack,
+        color: AppColors.gaugeTrack,
         borderRadius: BorderRadius.circular(6),
         boxShadow: active
             ? [
@@ -77,6 +84,19 @@ class _Segment extends StatelessWidget {
                 ),
               ]
             : null,
+      ),
+      child: TweenAnimationBuilder<double>(
+        duration: const Duration(milliseconds: 120),
+        tween: Tween(begin: fill, end: fill),
+        builder: (context, animatedFill, child) => FractionallySizedBox(
+          alignment: Alignment.bottomCenter,
+          heightFactor: animatedFill,
+          widthFactor: 1,
+          child: child,
+        ),
+        child: DecoratedBox(
+          decoration: BoxDecoration(color: AppColors.accent, borderRadius: BorderRadius.circular(6)),
+        ),
       ),
     );
   }

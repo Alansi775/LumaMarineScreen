@@ -3,8 +3,6 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../../core/theme/app_colors.dart';
-import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/keyboard/app_text_field.dart';
 import '../../../../core/widgets/keyboard/keyboard_target.dart';
@@ -12,14 +10,29 @@ import '../../application/lights_controller.dart';
 import '../../domain/light_model.dart';
 
 Future<void> showAddLightSheet(BuildContext context) {
+  // Captured now, while the context is definitely still valid — used to
+  // clear the keyboard target after the sheet closes, however it closes.
+  // Doing this via `ref` inside the sheet's own dispose() crashes
+  // ("Cannot use ref after the widget was disposed") because Riverpod
+  // tears down the element's ref binding before State.dispose() runs
+  // during a route-pop unmount cascade.
+  final container = ProviderScope.containerOf(context, listen: false);
   return showModalBottomSheet(
     context: context,
     backgroundColor: Colors.transparent,
     isScrollControlled: true,
     barrierColor: Colors.black.withValues(alpha: 0.6), // تعتيم الخلفية بنعومة
     builder: (_) => const AddLightSheet(),
-  );
+  ).whenComplete(() {
+    final controller = container.read(_lastAddLightControllerProvider);
+    if (controller != null) clearKeyboardTargetIfMatches(container, controller);
+  });
 }
+
+/// Tracks the currently-open sheet's text controller so
+/// [showAddLightSheet]'s `whenComplete` can find it without touching a
+/// possibly-disposed widget's `ref`.
+final _lastAddLightControllerProvider = StateProvider<TextEditingController?>((ref) => null);
 
 class AddLightSheet extends ConsumerStatefulWidget {
   const AddLightSheet({super.key});
@@ -33,10 +46,15 @@ class _AddLightSheetState extends ConsumerState<AddLightSheet> {
   IconData _selectedIcon = lightIconChoices.first;
 
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) ref.read(_lastAddLightControllerProvider.notifier).state = _controller;
+    });
+  }
+
+  @override
   void dispose() {
-    if (ref.read(keyboardTargetProvider) == _controller) {
-      ref.read(keyboardTargetProvider.notifier).state = null;
-    }
     _controller.dispose();
     super.dispose();
   }
@@ -53,9 +71,12 @@ class _AddLightSheetState extends ConsumerState<AddLightSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final keyboardShowing = ref.watch(keyboardTargetProvider) == _controller;
     return Padding(
       padding: EdgeInsets.only(
-        bottom: MediaQuery.of(context).viewInsets.bottom + 24,
+        bottom: MediaQuery.of(context).viewInsets.bottom +
+            24 +
+            (keyboardShowing ? kAppKeyboardHeight : 0),
         left: 24,
         right: 24,
       ),

@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
 import '../../theme/app_colors.dart';
-import '../../theme/app_dimensions.dart';
 import '../../theme/app_text_styles.dart';
 
-/// Page header for every control screen — an icon chip, title/subtitle,
-/// and an optional trailing widget. Deliberately not a boxed app-bar:
-/// no filled background, no hard-edged bar — it reads as part of the
-/// page, just like the rest of this app's screens.
+/// Page header for every control screen — an icon, huge letter-spaced
+/// title, subtitle, and an optional trailing widget (status pill / mode
+/// toggle) floated to the corner. Deliberately borderless and centered —
+/// no app-bar box, reads as part of the page. Matches the premium
+/// glassmorphism header established on the Lighting/Tanks screens.
 class ControlPageHeader extends StatelessWidget {
   const ControlPageHeader({
     super.key,
@@ -25,34 +25,36 @@ class ControlPageHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(28, 24, 28, 18),
-      child: Row(
+      padding: const EdgeInsets.only(top: 32, left: 32, right: 32, bottom: 40),
+      child: Stack(
+        alignment: Alignment.center,
         children: [
-          Container(
-            width: 46,
-            height: 46,
-            decoration: BoxDecoration(
-              color: AppColors.accent.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(AppDimensions.radiusMedium),
-            ),
-            child: Icon(icon, size: 22, color: AppColors.accent),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(title, style: AppTextStyles.title),
-                const SizedBox(height: 2),
-                Text(
-                  subtitle,
-                  style: AppTextStyles.caption.copyWith(letterSpacing: 1.5),
+          if (trailing != null) Align(alignment: Alignment.centerRight, child: trailing),
+          Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(icon, color: AppColors.accent, size: 28),
+              const SizedBox(height: 12),
+              Text(
+                title,
+                style: AppTextStyles.title.copyWith(
+                  color: Colors.white,
+                  fontSize: 28,
+                  fontWeight: FontWeight.w300,
+                  letterSpacing: 16,
                 ),
-              ],
-            ),
+              ),
+              const SizedBox(height: 6),
+              Text(
+                subtitle,
+                style: AppTextStyles.caption.copyWith(
+                  color: Colors.white38,
+                  letterSpacing: 8,
+                  fontSize: 10,
+                ),
+              ),
+            ],
           ),
-          ?trailing,
         ],
       ),
     );

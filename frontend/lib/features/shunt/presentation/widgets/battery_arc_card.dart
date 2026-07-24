@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/circular_gauge.dart';
 import '../../domain/shunt_reading.dart';
 
@@ -18,21 +17,27 @@ class BatteryArcCard extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Text(reading.name, style: AppTextStyles.caption.copyWith(color: color, letterSpacing: 1.2)),
-        const SizedBox(height: 10),
+        Text(
+          reading.name,
+          style: TextStyle(color: color, fontSize: 11, fontWeight: FontWeight.w500, letterSpacing: 2),
+        ),
+        const SizedBox(height: 12),
         CircularGauge(
           value: reading.percentage,
           size: 150,
           color: color,
-          strokeWidth: 12,
+          strokeWidth: 10,
           startAngleDeg: 135,
           sweepAngleDeg: 270,
-          centerLabel: Text('${reading.voltage.toStringAsFixed(1)}V', style: AppTextStyles.numeralMedium),
+          centerLabel: Text(
+            '${reading.voltage.toStringAsFixed(1)}V',
+            style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w300),
+          ),
         ),
-        const SizedBox(height: 10),
+        const SizedBox(height: 12),
         Text(
           '${(reading.percentage * 100).round()}%',
-          style: AppTextStyles.bodyStrong.copyWith(color: color),
+          style: TextStyle(color: color, fontSize: 14, fontWeight: FontWeight.w500, letterSpacing: 1),
         ),
       ],
     );

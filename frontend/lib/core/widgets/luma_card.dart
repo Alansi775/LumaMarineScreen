@@ -1,10 +1,13 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 
-import '../theme/app_colors.dart';
 import '../theme/app_dimensions.dart';
 
-/// The single card surface used across every screen — subtle elevation via
-/// a lighter fill + hairline border, never a stock Material shadow.
+/// The single card surface used across every screen — a soft glass
+/// panel (blur + faint white hairline), matches the premium
+/// glassmorphism look established on Lighting/Tanks. No hard borders,
+/// no flat fills.
 class LumaCard extends StatelessWidget {
   const LumaCard({
     super.key,
@@ -19,22 +22,20 @@ class LumaCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: padding,
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(radius),
-        border: Border.all(color: AppColors.hairline),
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            AppColors.surfaceRaised.withValues(alpha: 0.6),
-            AppColors.surface,
-          ],
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(radius),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
+        child: Container(
+          padding: padding,
+          decoration: BoxDecoration(
+            color: const Color(0xFF15161A).withValues(alpha: 0.7),
+            borderRadius: BorderRadius.circular(radius),
+            border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+          ),
+          child: child,
         ),
       ),
-      child: child,
     );
   }
 }

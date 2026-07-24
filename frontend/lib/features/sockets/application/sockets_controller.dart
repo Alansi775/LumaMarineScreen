@@ -1,9 +1,6 @@
-import 'dart:async';
-
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../core/canbus/can_bus_service.dart';
-import '../../../core/canbus/node_connection.dart';
 import '../domain/socket_model.dart';
 
 part 'sockets_controller.g.dart';
@@ -14,15 +11,8 @@ part 'sockets_controller.g.dart';
 /// usrSettingsPage.c) before a user renames them via Settings.
 @riverpod
 class SocketsController extends _$SocketsController {
-  final Map<String, Timer> _revertTimers = {};
-
   @override
   List<SocketModel> build() {
-    ref.onDispose(() {
-      for (final timer in _revertTimers.values) {
-        timer.cancel();
-      }
-    });
     return const [
       SocketModel(id: 's1', name: 'PWM-1', isOn: false),
       SocketModel(id: 's2', name: 'PWM-2', isOn: false),
@@ -33,8 +23,8 @@ class SocketsController extends _$SocketsController {
     ];
   }
 
-  /// Responds immediately, but snaps back after [NodeConnection.revertDelay]
-  /// since no relay node is connected to confirm the change.
+  /// Toggles and stays — [NodeStatusPill] is the honest signal about
+  /// whether hardware is actually there, not a state that reverts itself.
   void toggle(String id) {
     final index = state.indexWhere((s) => s.id == id);
     if (index == -1) return;
@@ -46,26 +36,9 @@ class SocketsController extends _$SocketsController {
     ];
 
     ref.read(canBusServiceProvider).setSocketRelay(channel: index + 1, isOn: newIsOn);
-
-    // Always settles back to OFF — see LightsController.toggle for why
-    // reverting to a per-press "previous" value is wrong.
-    _revertTimers[id]?.cancel();
-    if (!NodeConnection.socketsRelayNodeConnected && newIsOn) {
-      _revertTimers[id] = Timer(NodeConnection.revertDelay, () {
-        state = [
-          for (final socket in state)
-            if (socket.id == id) socket.copyWith(isOn: false) else socket,
-        ];
-      });
-    }
   }
 
   void allOff() {
-    for (final timer in _revertTimers.values) {
-      timer.cancel();
-    }
-    _revertTimers.clear();
-
     state = [for (final s in state) s.copyWith(isOn: false)];
     for (var i = 0; i < state.length; i++) {
       ref.read(canBusServiceProvider).setSocketRelay(channel: i + 1, isOn: false);

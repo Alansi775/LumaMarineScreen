@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 
 import '../../theme/app_colors.dart';
-import '../../theme/app_dimensions.dart';
-import '../../theme/app_text_styles.dart';
 
-/// Generic outlined pill action button — "Close All", "Auto Pair",
-/// "Refresh". Matches the sidebar/center-panel footer buttons on every
-/// real control page.
+/// Generic minimal action button — "Close All", "Auto Pair", "Refresh".
+/// Borderless when muted, a soft accent-tinted outline when active —
+/// matches the premium glassmorphism action button on Lighting/Tanks.
 class ControlPillButton extends StatelessWidget {
   const ControlPillButton({
     super.key,
@@ -21,21 +19,27 @@ class ControlPillButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return InkWell(
       onTap: onTap,
-      behavior: HitTestBehavior.opaque,
+      borderRadius: BorderRadius.circular(30),
       child: Container(
-        height: 46,
-        alignment: Alignment.center,
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(vertical: 16),
         decoration: BoxDecoration(
-          color: active ? AppColors.accent.withValues(alpha: 0.14) : AppColors.surface,
-          borderRadius: BorderRadius.circular(AppDimensions.radiusLarge),
-          border: Border.all(color: active ? AppColors.accent : AppColors.hairline, width: active ? 2 : 1),
+          borderRadius: BorderRadius.circular(30),
+          color: active ? AppColors.accent.withValues(alpha: 0.12) : Colors.transparent,
+          border: Border.all(
+            color: active ? AppColors.accent.withValues(alpha: 0.6) : Colors.white.withValues(alpha: 0.1),
+          ),
         ),
+        alignment: Alignment.center,
         child: Text(
-          label,
-          style: AppTextStyles.bodyStrong.copyWith(
-            color: active ? AppColors.accent : AppColors.textSecondary,
+          label.toUpperCase(),
+          style: TextStyle(
+            color: active ? AppColors.accent : Colors.white70,
+            fontSize: 11,
+            fontWeight: FontWeight.w600,
+            letterSpacing: 2,
           ),
         ),
       ),

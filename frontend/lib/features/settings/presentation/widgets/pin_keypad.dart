@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/theme/app_text_styles.dart';
 
@@ -57,14 +56,14 @@ class _KeypadButton extends StatelessWidget {
       behavior: HitTestBehavior.opaque,
       child: Container(
         decoration: BoxDecoration(
-          color: AppColors.surface,
+          color: Colors.white.withValues(alpha: 0.03),
           borderRadius: BorderRadius.circular(AppDimensions.radiusMedium),
-          border: Border.all(color: AppColors.hairline),
+          border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
         ),
         alignment: Alignment.center,
         child: label == '⌫'
-            ? const Icon(Icons.backspace_outlined, size: 20, color: AppColors.textSecondary)
-            : Text(label, style: AppTextStyles.cardNumeral),
+            ? Icon(Icons.backspace_outlined, size: 20, color: Colors.white.withValues(alpha: 0.6))
+            : Text(label, style: AppTextStyles.cardNumeral.copyWith(color: Colors.white)),
       ),
     );
   }

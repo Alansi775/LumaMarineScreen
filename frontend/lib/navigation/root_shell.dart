@@ -127,26 +127,25 @@ class _NavArrowButtonState extends State<_NavArrowButton> {
         scale: _pressed ? 0.88 : 1.0,
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),
-          width: 48,
-          height: 48,
+          width: 68,
+          height: 68,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             color: AppColors.surfaceRaised.withValues(
-              alpha: _pressed ? 0.95 : 0.55,
+              alpha: _pressed ? 0.95 : 0.75,
             ),
             border: Border.all(
-              color: AppColors.accent.withValues(alpha: _pressed ? 0.7 : 0.25),
+              color: AppColors.accent.withValues(alpha: _pressed ? 0.9 : 0.5),
+              width: 1.5,
             ),
-            boxShadow: _pressed
-                ? [
-                    BoxShadow(
-                      color: AppColors.accent.withValues(alpha: 0.35),
-                      blurRadius: 18,
-                    ),
-                  ]
-                : null,
+            boxShadow: [
+              BoxShadow(
+                color: AppColors.accent.withValues(alpha: _pressed ? 0.35 : 0.18),
+                blurRadius: _pressed ? 18 : 12,
+              ),
+            ],
           ),
-          child: Icon(widget.icon, color: AppColors.accent, size: 26),
+          child: Icon(widget.icon, color: AppColors.accent, size: 34),
         ),
       ),
     );

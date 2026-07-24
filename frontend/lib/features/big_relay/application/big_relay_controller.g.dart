@@ -7,12 +7,12 @@ part of 'big_relay_controller.dart';
 // **************************************************************************
 
 String _$bigRelayControllerHash() =>
-    r'923de52ae3e576879c11abee5ee5024be3ebdfcc';
+    r'bb659c7bab829d7604b5be64cc2d52775e0fa35a';
 
 /// 16-channel relay bank with real I/O feedback (usrBigRelayPage.h/.c).
-/// Every action responds immediately (so the app demos smoothly) but
-/// snaps back after [NodeConnection.revertDelay] since no node is
-/// connected to actually confirm it — including Auto Pair.
+/// Every action toggles and stays — [NodeStatusPill] is the honest
+/// signal about whether hardware is actually there, not a state that
+/// reverts itself.
 ///
 /// Copied from [BigRelayController].
 @ProviderFor(BigRelayController)

@@ -7,8 +7,11 @@ class OverviewScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const SafeArea(
-      child: Center(child: TimeDateDisplay()),
+    return Container(
+      color: const Color(0xFF07080A),
+      child: const SafeArea(
+        child: Center(child: TimeDateDisplay()),
+      ),
     );
   }
 }

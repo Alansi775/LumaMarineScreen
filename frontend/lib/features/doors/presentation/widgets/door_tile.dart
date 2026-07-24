@@ -29,9 +29,9 @@ class DoorTile extends StatelessWidget {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(AppDimensions.radiusMedium),
           border: Border.all(
-            color: isOpen ? color.withValues(alpha: 0.6) : AppColors.hairline,
+            color: isOpen ? color.withValues(alpha: 0.5) : Colors.white.withValues(alpha: 0.06),
           ),
-          color: AppColors.surface,
+          color: Colors.white.withValues(alpha: isOpen ? 0.04 : 0.02),
           boxShadow: isOpen
               ? [
                   BoxShadow(
