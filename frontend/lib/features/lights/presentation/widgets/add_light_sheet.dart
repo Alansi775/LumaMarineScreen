@@ -1,3 +1,5 @@
+// frontend/lib/features/lights/presentation/widgets/add_light_sheet.dart
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -14,6 +16,7 @@ Future<void> showAddLightSheet(BuildContext context) {
     context: context,
     backgroundColor: Colors.transparent,
     isScrollControlled: true,
+    barrierColor: Colors.black.withValues(alpha: 0.6), // تعتيم الخلفية بنعومة
     builder: (_) => const AddLightSheet(),
   );
 }
@@ -52,81 +55,121 @@ class _AddLightSheetState extends ConsumerState<AddLightSheet> {
   Widget build(BuildContext context) {
     return Padding(
       padding: EdgeInsets.only(
-        bottom: MediaQuery.of(context).viewInsets.bottom,
+        bottom: MediaQuery.of(context).viewInsets.bottom + 24,
+        left: 24,
+        right: 24,
       ),
-      child: Container(
-        padding: const EdgeInsets.fromLTRB(28, 24, 28, 32),
-        decoration: const BoxDecoration(
-          color: AppColors.surfaceRaised,
-          borderRadius: BorderRadius.vertical(
-            top: Radius.circular(AppDimensions.radiusLarge),
-          ),
-          border: Border(
-            top: BorderSide(color: AppColors.hairline),
-            left: BorderSide(color: AppColors.hairline),
-            right: BorderSide(color: AppColors.hairline),
-          ),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Center(
-              child: Container(
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: AppColors.hairline,
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(32),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16), // تأثير زجاجي قوي
+          child: Container(
+            padding: const EdgeInsets.fromLTRB(32, 24, 32, 32),
+            decoration: BoxDecoration(
+              color: const Color(0xFF15161A).withValues(alpha: 0.7), // لون داكن شفاف
+              borderRadius: BorderRadius.circular(32),
+              border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
             ),
-            const SizedBox(height: 22),
-            Text('ADD LIGHT', style: AppTextStyles.sectionLabel),
-            const SizedBox(height: 18),
-            AppTextField(controller: _controller, hintText: 'e.g. Salon Lamp'),
-            const SizedBox(height: 20),
-            Wrap(
-              spacing: 12,
-              runSpacing: 12,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                for (final icon in lightIconChoices)
-                  _IconChoice(
-                    icon: icon,
-                    selected: icon == _selectedIcon,
-                    onTap: () => setState(() => _selectedIcon = icon),
+                Center(
+                  child: Container(
+                    width: 48,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.2),
+                      borderRadius: BorderRadius.circular(2),
+                    ),
                   ),
+                ),
+                const SizedBox(height: 32),
+                Text(
+                  'NEW LIGHT ZONE',
+                  style: AppTextStyles.sectionLabel.copyWith(
+                    color: Colors.white,
+                    letterSpacing: 4,
+                    fontSize: 14,
+                  ),
+                ),
+                const SizedBox(height: 24),
+                // مربع النص يمكن أن يبقى من الـ Core ولكن أحطناه بـ Theme عصري
+                Theme(
+                  data: Theme.of(context).copyWith(
+                    inputDecorationTheme: InputDecorationTheme(
+                      filled: true,
+                      fillColor: Colors.black.withValues(alpha: 0.3),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        borderSide: BorderSide.none,
+                      ),
+                      hintStyle: const TextStyle(color: Colors.white38),
+                    ),
+                  ),
+                  child: AppTextField(
+                    controller: _controller,
+                    hintText: 'e.g. Master Bedroom',
+                  ),
+                ),
+                const SizedBox(height: 32),
+                Text(
+                  'SELECT ICON',
+                  style: AppTextStyles.sectionLabel.copyWith(
+                    color: Colors.white54,
+                    letterSpacing: 2,
+                    fontSize: 12,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Wrap(
+                  spacing: 16,
+                  runSpacing: 16,
+                  children: [
+                    for (final icon in lightIconChoices)
+                      _ModernIconChoice(
+                        icon: icon,
+                        selected: icon == _selectedIcon,
+                        onTap: () => setState(() => _selectedIcon = icon),
+                      ),
+                  ],
+                ),
+                const SizedBox(height: 40),
+                SizedBox(
+                  width: double.infinity,
+                  height: 56,
+                  child: ElevatedButton(
+                    onPressed: _submit,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF45F5E4), // لون Accent عصري (Cyan)
+                      foregroundColor: const Color(0xFF0B0C10),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      elevation: 10,
+                      shadowColor: const Color(0xFF45F5E4).withValues(alpha: 0.3),
+                    ),
+                    child: Text(
+                      'ADD ZONE',
+                      style: AppTextStyles.bodyStrong.copyWith(
+                        color: const Color(0xFF0B0C10),
+                        letterSpacing: 2,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
               ],
             ),
-            const SizedBox(height: 26),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: _submit,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.accent,
-                  foregroundColor: AppColors.background,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(AppDimensions.radiusSmall),
-                  ),
-                  elevation: 0,
-                ),
-                child: Text('ADD', style: AppTextStyles.bodyStrong.copyWith(
-                  color: AppColors.background,
-                  letterSpacing: 1,
-                )),
-              ),
-            ),
-          ],
+          ),
         ),
       ),
     );
   }
 }
 
-class _IconChoice extends StatelessWidget {
-  const _IconChoice({
+class _ModernIconChoice extends StatelessWidget {
+  const _ModernIconChoice({
     required this.icon,
     required this.selected,
     required this.onTap,
@@ -141,20 +184,30 @@ class _IconChoice extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 150),
-        width: 48,
-        height: 48,
+        duration: const Duration(milliseconds: 200),
+        width: 56,
+        height: 56,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          color: selected ? AppColors.accent.withValues(alpha: 0.16) : AppColors.surface,
+          color: selected ? const Color(0xFF45F5E4).withValues(alpha: 0.15) : Colors.white.withValues(alpha: 0.05),
           border: Border.all(
-            color: selected ? AppColors.accent : AppColors.hairline,
+            color: selected ? const Color(0xFF45F5E4) : Colors.transparent,
+            width: selected ? 2 : 1,
           ),
+          boxShadow: selected
+              ? [
+                  BoxShadow(
+                    color: const Color(0xFF45F5E4).withValues(alpha: 0.2),
+                    blurRadius: 12,
+                    spreadRadius: 2,
+                  )
+                ]
+              : null,
         ),
         child: Icon(
           icon,
-          size: 20,
-          color: selected ? AppColors.accent : AppColors.textSecondary,
+          size: 24,
+          color: selected ? const Color(0xFF45F5E4) : Colors.white54,
         ),
       ),
     );

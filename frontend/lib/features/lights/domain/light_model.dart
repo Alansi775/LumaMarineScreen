@@ -1,3 +1,4 @@
+// frontend/lib/features/lights/domain/light_model.dart
 import 'package:flutter/material.dart';
 
 /// A single user-managed light. Fully user-defined — there is no hardcoded
