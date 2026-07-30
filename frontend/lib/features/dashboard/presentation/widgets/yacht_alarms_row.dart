@@ -31,7 +31,14 @@ class YachtAlarmsRow extends ConsumerWidget {
                   border: Border.all(color: AppColors.hairline),
                   borderRadius: BorderRadius.circular(AppDimensions.radiusMedium),
                 ),
-                child: Image.asset('assets/images/yatch.png', fit: BoxFit.cover, width: double.infinity),
+                child: Padding(
+                  padding: const EdgeInsets.all(8),
+                  child: Image.asset(
+                    'assets/images/yacht_photo.png',
+                    fit: BoxFit.cover,
+                    width: double.infinity,
+                 ),
+                ),
               ),
             ),
           ),
