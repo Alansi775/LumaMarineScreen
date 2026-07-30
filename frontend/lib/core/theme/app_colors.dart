@@ -5,12 +5,14 @@ import 'package:flutter/painting.dart';
 class AppColors {
   const AppColors._();
 
-  // Base / elevation
+  // Base / elevation — background stays the same near-black as before
+  // (explicit call: keep it black, not the navy the SCADA reference
+  // design uses); panels get a subtle navy-instrument tint instead.
   static const Color background = Color(0xFF060708);
-  static const Color surface = Color(0xFF121316);
-  static const Color surfaceRaised = Color(0xFF1A1C20);
-  static const Color surfaceHighlight = Color(0xFF24272C);
-  static const Color hairline = Color(0xFF2A2D33);
+  static const Color surface = Color(0xFF10141C);
+  static const Color surfaceRaised = Color(0xFF161C28);
+  static const Color surfaceHighlight = Color(0xFF212A3B);
+  static const Color hairline = Color(0xFF232B3A);
 
   // Text
   static const Color textPrimary = Color(0xFFF5F6F7);

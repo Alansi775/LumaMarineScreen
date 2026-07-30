@@ -1,19 +1,20 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 
+import '../theme/app_colors.dart';
 import '../theme/app_dimensions.dart';
 
-/// The single card surface used across every screen — a soft glass
-/// panel (blur + faint white hairline), matches the premium
-/// glassmorphism look established on Lighting/Tanks. No hard borders,
-/// no flat fills.
+/// The single panel surface used across every dashboard screen — a flat
+/// navy-tinted surface with a thin hairline border, matching the SCADA
+/// reference design's instrument-panel look. No blur: this dashboard
+/// packs many panels on screen at once, and backdrop blur repeated a
+/// dozen+ times per frame is real cost for no visual benefit at this
+/// density.
 class LumaCard extends StatelessWidget {
   const LumaCard({
     super.key,
     required this.child,
-    this.padding = const EdgeInsets.all(24),
-    this.radius = AppDimensions.radiusLarge,
+    this.padding = const EdgeInsets.all(20),
+    this.radius = AppDimensions.radiusMedium,
   });
 
   final Widget child;
@@ -22,20 +23,14 @@ class LumaCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(radius),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
-        child: Container(
-          padding: padding,
-          decoration: BoxDecoration(
-            color: const Color(0xFF15161A).withValues(alpha: 0.7),
-            borderRadius: BorderRadius.circular(radius),
-            border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
-          ),
-          child: child,
-        ),
+    return Container(
+      padding: padding,
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(radius),
+        border: Border.all(color: AppColors.hairline),
       ),
+      child: child,
     );
   }
 }
