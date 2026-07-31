@@ -23,18 +23,22 @@ class CanBusService {
 
   final CanBusTransport _transport;
 
-  /// LED_CMD_SET (0x11): [cmd, channel(1-based), state]
-  Future<void> setLed({required int channel, required bool isOn}) {
+  /// LED_CMD_SET (0x11): [cmd, channel(1-based), state]. [nodeId] is the
+  /// LED board's *dynamically assigned* CAN ID (see [CanIdMaster]) —
+  /// there's no fixed ID for real LED boards, they get one at boot via
+  /// the request/assign handshake. Pass [CanProtocol.canBroadcastId] if
+  /// no assignment is known yet (ignored by the board until it's ACTIVE).
+  Future<void> setLed({required int nodeId, required int channel, required bool isOn}) {
     return _transport.send(CanFrame(
-      id: CanProtocol.ledNodeId,
+      id: nodeId,
       data: [CanProtocol.ledCmdSet, channel, isOn ? 1 : 0],
     ));
   }
 
   /// LED_CMD_SET_BRIGHTNESS (0x12): [cmd, channel, value>>8, value&0xFF]
-  Future<void> setLedBrightness({required int channel, required int value}) {
+  Future<void> setLedBrightness({required int nodeId, required int channel, required int value}) {
     return _transport.send(CanFrame(
-      id: CanProtocol.ledNodeId,
+      id: nodeId,
       data: [
         CanProtocol.ledCmdSetBrightness,
         channel,

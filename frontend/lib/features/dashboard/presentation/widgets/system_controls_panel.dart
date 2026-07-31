@@ -115,25 +115,25 @@ class _ToggleTile extends StatelessWidget {
       onTap: onTap,
       borderRadius: BorderRadius.circular(10),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
+        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, size: 22, color: isOn ? AppColors.success : AppColors.textSecondary),
+            Icon(icon, size: 24, color: isOn ? AppColors.success : AppColors.textSecondary),
             const SizedBox(height: 6),
             Text(
               label,
               textAlign: TextAlign.center,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: const TextStyle(color: AppColors.textTertiary, fontSize: 8, letterSpacing: 0.2),
+              style: const TextStyle(color: AppColors.textTertiary, fontSize: 11, letterSpacing: 0.2),
             ),
             const SizedBox(height: 6),
             Text(
               isOn ? AppStrings.acik : AppStrings.kapali,
               style: TextStyle(
                 color: isOn ? AppColors.success : AppColors.textTertiary,
-                fontSize: 9,
+                fontSize: 11,
                 fontWeight: FontWeight.w700,
               ),
             ),
@@ -179,17 +179,17 @@ class _SintineTile extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.water_damage_outlined, size: 22, color: _color),
+            Icon(Icons.water_damage_outlined, size: 24, color: _color),
             const SizedBox(height: 6),
             const Text(
               AppStrings.sintinePompa,
               textAlign: TextAlign.center,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: TextStyle(color: AppColors.textTertiary, fontSize: 8, letterSpacing: 0.2),
+              style: TextStyle(color: AppColors.textTertiary, fontSize: 11, letterSpacing: 0.2),
             ),
             const SizedBox(height: 6),
-            Text(_label, style: TextStyle(color: _color, fontSize: 9, fontWeight: FontWeight.w700)),
+            Text(_label, style: TextStyle(color: _color, fontSize: 11, fontWeight: FontWeight.w700)),
             const SizedBox(height: 4),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -198,7 +198,7 @@ class _SintineTile extends StatelessWidget {
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(color: _color.withValues(alpha: 0.5)),
               ),
-              child: Icon(Icons.sync_alt_rounded, size: 14, color: _color),
+              child: Icon(Icons.sync_alt_rounded, size: 16, color: _color),
             ),
           ],
         ),

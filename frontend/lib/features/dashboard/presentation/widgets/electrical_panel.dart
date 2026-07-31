@@ -54,21 +54,23 @@ class _ElecColumn extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Text(
           title,
+          textAlign: TextAlign.center,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
-          style: const TextStyle(color: AppColors.textTertiary, fontSize: 8.5, letterSpacing: 0.3),
+          style: const TextStyle(color: AppColors.textTertiary, fontSize: 11, letterSpacing: 0.3),
         ),
         const SizedBox(height: 4),
         Text(
           '${reading.voltageDc.toStringAsFixed(1)}V',
-          style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w700),
+          textAlign: TextAlign.center,
+          style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w700),
         ),
-        const SizedBox(height: 4),
-        Text('${reading.ampsDc.toStringAsFixed(1)}A', style: const TextStyle(color: AppColors.textSecondary, fontSize: 9.5)),
+        const SizedBox(height: 6),
+        Text('${reading.ampsDc.toStringAsFixed(1)}A', textAlign: TextAlign.center, style: const TextStyle(color: AppColors.textSecondary, fontSize: 11)),
       ],
     );
   }

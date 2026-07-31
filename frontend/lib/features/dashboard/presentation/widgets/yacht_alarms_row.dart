@@ -50,14 +50,14 @@ class YachtAlarmsRow extends ConsumerWidget {
                 children: [
                   const Text(
                     AppStrings.aktifAlarmlar,
-                    style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w700, letterSpacing: 1),
+                    style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w700, letterSpacing: 1),
                   ),
                   const SizedBox(height: 8),
                   Expanded(
                     child: ListView.separated(
                       physics: const BouncingScrollPhysics(),
                       itemCount: alarms.length,
-                      separatorBuilder: (_, _) => const Divider(color: AppColors.hairline, height: 12),
+                      separatorBuilder: (_, _) => const SizedBox(height: 10),
                       itemBuilder: (context, i) => _AlarmRow(alarm: alarms[i]),
                     ),
                   ),
@@ -94,29 +94,33 @@ class _AlarmRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Icon(alarm.severity.icon, size: 16, color: alarm.severity.color),
-        const SizedBox(width: 8),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                alarm.message,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(color: Colors.white, fontSize: 11.5, fontWeight: FontWeight.w600),
-              ),
-              Text(
-                '${alarm.time} · ${alarm.location}',
-                style: const TextStyle(color: AppColors.textTertiary, fontSize: 9.5),
-              ),
-            ],
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(alarm.severity.icon, size: 18, color: alarm.severity.color),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  alarm.message,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(color: Colors.white, fontSize: 13.5, fontWeight: FontWeight.w600),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  '${alarm.time} · ${alarm.location}',
+                  style: const TextStyle(color: AppColors.textTertiary, fontSize: 11),
+                ),
+              ],
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

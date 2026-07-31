@@ -50,13 +50,14 @@ class _EngineColumn extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        Text(title, style: const TextStyle(color: AppColors.textTertiary, fontSize: 9, letterSpacing: 0.5)),
+        Text(title, textAlign: TextAlign.center, style: const TextStyle(color: AppColors.textTertiary, fontSize: 11, letterSpacing: 0.5)),
         const SizedBox(height: 4),
         Text(
           '${reading.rpm} RPM',
-          style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w700),
+          textAlign: TextAlign.center,
+          style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w700),
         ),
         const SizedBox(height: 6),
         Row(
@@ -67,7 +68,7 @@ class _EngineColumn extends StatelessWidget {
               '${reading.tempC.toStringAsFixed(0)}°C',
               style: TextStyle(
                 color: reading.isHot ? AppColors.warning : AppColors.textSecondary,
-                fontSize: 10.5,
+                fontSize: 12,
                 fontWeight: FontWeight.w600,
               ),
             ),
@@ -76,12 +77,12 @@ class _EngineColumn extends StatelessWidget {
         const SizedBox(height: 3),
         Text(
           '${AppStrings.yagBasinciLabel} ${reading.oilBar.toStringAsFixed(1)} bar',
-          style: const TextStyle(color: AppColors.textSecondary, fontSize: 10),
+          style: const TextStyle(color: AppColors.textSecondary, fontSize: 11),
         ),
         const SizedBox(height: 3),
         Text(
           '${AppStrings.yukLabel} %${reading.loadPercent.toStringAsFixed(0)}',
-          style: const TextStyle(color: AppColors.textSecondary, fontSize: 10),
+          style: const TextStyle(color: AppColors.textSecondary, fontSize: 11),
         ),
       ],
     );

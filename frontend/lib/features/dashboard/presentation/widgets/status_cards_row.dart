@@ -129,7 +129,7 @@ class _StatusCard extends StatelessWidget {
                     title,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(color: AppColors.textTertiary, fontSize: 9, letterSpacing: 0.8),
+                      style: const TextStyle(color: AppColors.textTertiary, fontSize: 11, letterSpacing: 0.8),
                   ),
                   const SizedBox(height: 2),
                   Text(
@@ -141,13 +141,23 @@ class _StatusCard extends StatelessWidget {
                       fontSize: 17,
                       fontWeight: FontWeight.w700,
                     ),
-                  ),
+                    ),
+                    Text(
+                      value,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        color: valueColor ?? Colors.white,
+                        fontSize: 20,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
                   if (subtitle != null)
                     Text(
                       subtitle!,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(color: AppColors.textTertiary, fontSize: 8.5),
+                       style: const TextStyle(color: AppColors.textTertiary, fontSize: 10.5),
                     ),
                 ],
               ),

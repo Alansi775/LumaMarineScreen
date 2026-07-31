@@ -23,6 +23,7 @@ class AppStrings {
   static const navAnaEkran = 'ANA EKRAN';
   static const navSeyirBilgileri = 'SEYİR BİLGİLERİ';
   static const navMakineDairesi = 'MAKİNE DAİRESİ';
+  static const navAydinlatmaSistemi = 'AYDINLATMA SİSTEMİ';
   static const navElektrikSistemi = 'ELEKTRİK SİSTEMİ';
   static const navTankSeviyeleri = 'TANK SEVİYELERİ';
   static const navAlarmListesi = 'ALARM LİSTESİ';

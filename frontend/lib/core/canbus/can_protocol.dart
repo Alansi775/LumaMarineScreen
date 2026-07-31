@@ -36,4 +36,35 @@ class CanProtocol {
 
   // Big Shunt relay control (usrShuntPage.h) — data[1]=relay 1-2, data[2]=0/1
   static const bigShuntCmdSetRelay = 0x43;
+
+  // ================= Dynamic CAN ID assignment protocol =================
+  // Verified against the real STM32 firmware source
+  // (LedBoard/Core/Inc/usrCanIDList.h + Core/Src/usrCan.c,
+  // MarineSoftware.rar) — not guessed. A board with no fixed ID
+  // broadcasts a request on [canIdRequestId] at boot; a bus master (see
+  // CanIdMaster) must reply on [canIdAssignmentId] with an offset into
+  // [dynamicIdMin]..[dynamicIdMax]. The board then confirms on the same
+  // ID and goes ACTIVE. The master must keep sending a heartbeat on
+  // [canMasterHeartbeatId] at least every 15s (MASTER_HEARTBEAT_TIMEOUT_MS
+  // in firmware) or the board forgets its assignment and starts over.
+  static const int canIdRequestId = 0x3FE;
+  static const int canIdAssignmentId = 0x3FD;
+  static const int canMasterHeartbeatId = 0x3FC;
+  static const int canBroadcastId = 0x3FF;
+  static const int canHeartbeatBaseId = 0x390;
+
+  static const int dynamicIdMin = 0x300;
+  static const int dynamicIdMax = 0x38F;
+
+  static const int cmdRequestId = 0x01;
+  static const int cmdAssignId = 0x02;
+  static const int cmdIdConfirmation = 0x03;
+  static const int cmdHeartbeat = 0x04;
+  static const int cmdReassignRequest = 0x05;
+  static const int cmdMasterHeartbeat = 0x06;
+
+  // node_type_t (usrCanIDList.h)
+  static const int nodeTypeLed = 0x01;
+  static const int nodeTypeRelay = 0x02;
+  static const int nodeTypeSensor = 0x03;
 }

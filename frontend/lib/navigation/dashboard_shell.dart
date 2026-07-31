@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../core/theme/app_colors.dart';
 import '../features/dashboard/presentation/home_screen.dart';
+import '../features/lighting/presentation/lighting_screen.dart';
 import 'app_section.dart';
 import 'widgets/dashboard_footer.dart';
 import 'widgets/dashboard_sidebar.dart';
@@ -41,9 +42,11 @@ class DashboardShell extends ConsumerWidget {
                       duration: const Duration(milliseconds: 180),
                       child: KeyedSubtree(
                         key: ValueKey(section),
-                        child: section == AppSection.home
-                            ? const HomeScreen()
-                            : SectionPlaceholderScreen(section: section),
+                        child: switch (section) {
+                          AppSection.home => const HomeScreen(),
+                          AppSection.lighting => const LightingScreen(),
+                          _ => SectionPlaceholderScreen(section: section),
+                        },
                       ),
                     ),
                   ),

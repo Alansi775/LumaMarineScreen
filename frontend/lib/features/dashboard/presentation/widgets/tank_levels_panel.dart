@@ -31,7 +31,12 @@ class TankLevelsPanel extends ConsumerWidget {
           const SizedBox(height: 8),
           Expanded(
             child: Row(
-              children: [for (final tank in tanks) Expanded(child: _TankGaugeTile(tank: tank))],
+              children: [
+                for (var i = 0; i < tanks.length; i++) ...[
+                  Expanded(child: _TankGaugeTile(tank: tanks[i])),
+                  if (i != tanks.length - 1) const SizedBox(width: 10),
+                ],
+              ],
             ),
           ),
         ],
@@ -52,24 +57,24 @@ class _TankGaugeTile extends StatelessWidget {
       children: [
         CircularGauge(
           value: tank.percent / 100,
-          size: 68,
+          size: 84,
           color: tank.type.color,
-          strokeWidth: 8,
+          strokeWidth: 10,
           startAngleDeg: 0,
           sweepAngleDeg: 360,
           centerLabel: Text(
             '%${tank.percent.toStringAsFixed(0)}',
-            style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w700),
+            style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w700),
           ),
         ),
-        const SizedBox(height: 6),
+        const SizedBox(height: 8),
         Text(
           tank.type.label,
-          style: const TextStyle(color: AppColors.textTertiary, fontSize: 8.5, letterSpacing: 0.3),
+          style: const TextStyle(color: AppColors.textTertiary, fontSize: 11, letterSpacing: 0.3),
         ),
         Text(
           '${tank.liters.toStringAsFixed(0)} L',
-          style: const TextStyle(color: AppColors.textSecondary, fontSize: 9, fontWeight: FontWeight.w600),
+          style: const TextStyle(color: AppColors.textSecondary, fontSize: 11, fontWeight: FontWeight.w600),
         ),
       ],
     );

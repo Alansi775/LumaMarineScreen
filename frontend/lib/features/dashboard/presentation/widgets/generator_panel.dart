@@ -51,18 +51,18 @@ class _GenColumn extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        Text(title, style: const TextStyle(color: AppColors.textTertiary, fontSize: 9, letterSpacing: 0.5)),
+        Text(title, textAlign: TextAlign.center, style: const TextStyle(color: AppColors.textTertiary, fontSize: 11, letterSpacing: 0.5)),
         const SizedBox(height: 4),
         Text(
           '${reading.voltageDc.toStringAsFixed(1)} V',
-          style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w700),
+          style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w700),
         ),
         const SizedBox(height: 6),
-        Text('${reading.ampsDc.toStringAsFixed(1)} A', style: const TextStyle(color: AppColors.textSecondary, fontSize: 10.5)),
+        Text('${reading.ampsDc.toStringAsFixed(1)} A', style: const TextStyle(color: AppColors.textSecondary, fontSize: 12)),
         const SizedBox(height: 3),
-        Text('${reading.wattsDc.toStringAsFixed(0)} W', style: const TextStyle(color: AppColors.textSecondary, fontSize: 10)),
+        Text('${reading.wattsDc.toStringAsFixed(0)} W', style: const TextStyle(color: AppColors.textSecondary, fontSize: 11)),
       ],
     );
   }

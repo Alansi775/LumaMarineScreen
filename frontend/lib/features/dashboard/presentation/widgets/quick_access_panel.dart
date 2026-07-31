@@ -52,22 +52,22 @@ class _QuickButton extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Container(
-            width: 42,
-            height: 42,
+            width: 48,
+            height: 48,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               color: AppColors.surfaceHighlight,
               border: Border.all(color: AppColors.hairline),
             ),
-            child: Icon(icon, size: 19, color: AppColors.accent),
+            child: Icon(icon, size: 22, color: AppColors.accent),
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: 8),
           Text(
             label,
             textAlign: TextAlign.center,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: const TextStyle(color: AppColors.textTertiary, fontSize: 8, letterSpacing: 0.2),
+            style: const TextStyle(color: AppColors.textTertiary, fontSize: 11, letterSpacing: 0.2),
           ),
         ],
       ),
