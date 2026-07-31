@@ -104,7 +104,10 @@ class _IoSerialCanBusTransport implements SerialCanBusTransport {
     final bytes = _encode(frame);
     try {
       await f.writeFrom(bytes);
-      await f.flush();
+      // No f.flush() — that maps to fsync(), which is only meaningful
+      // for regular files (forcing dirty pages to disk); on a character
+      // device like a serial port it has nothing to sync and fails with
+      // EINVAL. The write itself is already unbuffered at this layer.
       // ignore: avoid_print
       print(
         '[SerialCanBus] WROTE ${bytes.length}B to $devicePath: '
