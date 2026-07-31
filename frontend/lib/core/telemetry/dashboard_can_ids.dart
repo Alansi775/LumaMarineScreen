@@ -9,13 +9,10 @@
 class DashboardCanIds {
   const DashboardCanIds._();
 
-  // Outgoing — system control toggles (Sistem Kontrolleri).
-  static const int icAydinlatma = 0x900;
-  static const int disAydinlatma = 0x901;
-  static const int pompa1 = 0x902;
-  static const int pompa2 = 0x903;
+  // Outgoing — system control toggles (Sistem Kontrolleri). Lighting
+  // (Floor 1/2/3, Water Light) isn't here — it uses the real dynamic-ID
+  // LED board protocol in core/canbus/, not this placeholder namespace.
   static const int sintinePompa = 0x904; // tri-state: kapali/acik/otomatik
-  static const int klima = 0x905;
   static const int irgat = 0x906;
   static const int horn = 0x907;
 

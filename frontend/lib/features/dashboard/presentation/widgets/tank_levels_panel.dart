@@ -57,24 +57,24 @@ class _TankGaugeTile extends StatelessWidget {
       children: [
         CircularGauge(
           value: tank.percent / 100,
-          size: 84,
+          size: 108,
           color: tank.type.color,
-          strokeWidth: 10,
+          strokeWidth: 13,
           startAngleDeg: 0,
           sweepAngleDeg: 360,
           centerLabel: Text(
             '%${tank.percent.toStringAsFixed(0)}',
-            style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w700),
+            style: const TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.w700),
           ),
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 10),
         Text(
           tank.type.label,
-          style: const TextStyle(color: AppColors.textTertiary, fontSize: 11, letterSpacing: 0.3),
+          style: const TextStyle(color: AppColors.textTertiary, fontSize: 12.5, letterSpacing: 0.3),
         ),
         Text(
           '${tank.liters.toStringAsFixed(0)} L',
-          style: const TextStyle(color: AppColors.textSecondary, fontSize: 11, fontWeight: FontWeight.w600),
+          style: const TextStyle(color: AppColors.textSecondary, fontSize: 12.5, fontWeight: FontWeight.w600),
         ),
       ],
     );

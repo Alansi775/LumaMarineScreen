@@ -4,19 +4,24 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/constants/app_strings.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/luma_card.dart';
+import '../../../lighting/application/lighting_controller.dart';
 import '../../application/system_controls_controller.dart';
 import '../../domain/system_controls_state.dart';
 
-/// SİSTEM KONTROLLERİ — a row of icon-above-toggle controls. Every
-/// control here is confirmed "fully real": each already has its own CAN
-/// id and sends a real packet once hardware is connected. SİNTİNE POMPA
-/// is tri-state (KAPALI/AÇIK/OTOMATİK) in the reference, not a plain
-/// boolean — modeled as a cycling control instead of an on/off switch.
+/// SİSTEM KONTROLLERİ — a row of icon-above-toggle controls. Lighting
+/// tiles (Floor 1/2/3, Water Light) read/write the exact same
+/// `lightingControllerProvider` state as the Aydınlatma Sistemi screen —
+/// one light, one source of truth, toggling from either place agrees.
+/// SİNTİNE POMPA is tri-state (KAPALI/AÇIK/OTOMATİK) in the reference,
+/// not a plain boolean — modeled as a cycling control instead of an
+/// on/off switch.
 class SystemControlsPanel extends ConsumerWidget {
   const SystemControlsPanel({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final lights = ref.watch(lightingControllerProvider);
+    final lightingNotifier = ref.read(lightingControllerProvider.notifier);
     final state = ref.watch(systemControlsControllerProvider);
     final notifier = ref.read(systemControlsControllerProvider.notifier);
 
@@ -33,48 +38,17 @@ class SystemControlsPanel extends ConsumerWidget {
           Expanded(
             child: Row(
               children: [
-                Expanded(
-                  child: _ToggleTile(
-                    icon: Icons.lightbulb_outline_rounded,
-                    label: AppStrings.icAydinlatma,
-                    isOn: state.icAydinlatma,
-                    onTap: notifier.toggleIcAydinlatma,
+                for (final light in lights)
+                  Expanded(
+                    child: _ToggleTile(
+                      icon: light.isOn ? Icons.lightbulb_rounded : Icons.lightbulb_outline_rounded,
+                      label: light.name,
+                      isOn: light.isOn,
+                      onTap: () => lightingNotifier.toggle(light.ledNumber),
+                    ),
                   ),
-                ),
-                Expanded(
-                  child: _ToggleTile(
-                    icon: Icons.wb_incandescent_outlined,
-                    label: AppStrings.disAydinlatma,
-                    isOn: state.disAydinlatma,
-                    onTap: notifier.toggleDisAydinlatma,
-                  ),
-                ),
-                Expanded(
-                  child: _ToggleTile(
-                    icon: Icons.water_rounded,
-                    label: AppStrings.pompa1,
-                    isOn: state.pompa1,
-                    onTap: notifier.togglePompa1,
-                  ),
-                ),
-                Expanded(
-                  child: _ToggleTile(
-                    icon: Icons.water_rounded,
-                    label: AppStrings.pompa2,
-                    isOn: state.pompa2,
-                    onTap: notifier.togglePompa2,
-                  ),
-                ),
                 Expanded(
                   child: _SintineTile(mode: state.sintinePompa, onTap: notifier.cycleSintinePompa),
-                ),
-                Expanded(
-                  child: _ToggleTile(
-                    icon: Icons.ac_unit_rounded,
-                    label: AppStrings.klima,
-                    isOn: state.klima,
-                    onTap: notifier.toggleKlima,
-                  ),
                 ),
                 Expanded(
                   child: _ToggleTile(
@@ -115,25 +89,25 @@ class _ToggleTile extends StatelessWidget {
       onTap: onTap,
       borderRadius: BorderRadius.circular(10),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, size: 24, color: isOn ? AppColors.success : AppColors.textSecondary),
+            Icon(icon, size: 22, color: isOn ? AppColors.success : AppColors.textSecondary),
             const SizedBox(height: 6),
             Text(
               label,
               textAlign: TextAlign.center,
-              maxLines: 1,
+              maxLines: 2,
               overflow: TextOverflow.ellipsis,
-              style: const TextStyle(color: AppColors.textTertiary, fontSize: 11, letterSpacing: 0.2),
+              style: const TextStyle(color: AppColors.textTertiary, fontSize: 9, letterSpacing: 0.2, height: 1.15),
             ),
             const SizedBox(height: 6),
             Text(
               isOn ? AppStrings.acik : AppStrings.kapali,
               style: TextStyle(
                 color: isOn ? AppColors.success : AppColors.textTertiary,
-                fontSize: 11,
+                fontSize: 9,
                 fontWeight: FontWeight.w700,
               ),
             ),
@@ -179,17 +153,19 @@ class _SintineTile extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.water_damage_outlined, size: 24, color: _color),
+            // Reuses what used to be Pompa 1's icon — Pompa 1/2 and Klima
+            // were removed from this panel per client direction.
+            Icon(Icons.water_rounded, size: 22, color: _color),
             const SizedBox(height: 6),
-            const Text(
+            Text(
               AppStrings.sintinePompa,
               textAlign: TextAlign.center,
-              maxLines: 1,
+              maxLines: 2,
               overflow: TextOverflow.ellipsis,
-              style: TextStyle(color: AppColors.textTertiary, fontSize: 11, letterSpacing: 0.2),
+              style: const TextStyle(color: AppColors.textTertiary, fontSize: 9, letterSpacing: 0.2, height: 1.15),
             ),
             const SizedBox(height: 6),
-            Text(_label, style: TextStyle(color: _color, fontSize: 11, fontWeight: FontWeight.w700)),
+            Text(_label, style: TextStyle(color: _color, fontSize: 9, fontWeight: FontWeight.w700)),
             const SizedBox(height: 4),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -198,7 +174,7 @@ class _SintineTile extends StatelessWidget {
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(color: _color.withValues(alpha: 0.5)),
               ),
-              child: Icon(Icons.sync_alt_rounded, size: 16, color: _color),
+              child: Icon(Icons.sync_alt_rounded, size: 14, color: _color),
             ),
           ],
         ),

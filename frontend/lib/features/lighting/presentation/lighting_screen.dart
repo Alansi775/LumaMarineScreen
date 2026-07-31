@@ -4,16 +4,18 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_dimensions.dart';
 import '../../../core/widgets/luma_card.dart';
+import '../../../core/widgets/segmented_intensity_bar.dart';
 import '../application/lighting_controller.dart';
 import '../domain/light_channel.dart';
 import '../domain/yacht_light_image.dart';
 import 'widgets/rename_light_sheet.dart';
 
-/// AYDINLATMA SİSTEMİ — same sidebar-select + center-detail structure as
-/// the old ESP32-parity Lighting page (6 PWM channels + dimmer), just 4
-/// channels this time and the new flat panel design. The yacht photo
-/// sits center-stage and swaps live as lights toggle, so the operator
-/// sees the effect of every press immediately.
+/// AYDINLATMA SİSTEMİ — same underlying logic as the old ESP32-parity
+/// Lighting page (6 PWM channels + dimmer), just 4 channels this time,
+/// a grid of square press-to-toggle tiles instead of a list+switch, and
+/// the segmented bottom-up dimmer instead of a flat slider. The yacht
+/// photo sits center-stage and swaps live as lights toggle, so the
+/// operator sees the effect of every press immediately.
 class LightingScreen extends ConsumerStatefulWidget {
   const LightingScreen({super.key});
 
@@ -69,21 +71,24 @@ class _LightingScreenState extends ConsumerState<LightingScreen> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   SizedBox(
-                    width: 260,
-                    child: LumaCard(
-                      padding: const EdgeInsets.all(10),
-                      child: ListView(
-                        children: [
-                          for (final channel in channels)
-                            _ChannelListTile(
-                              channel: channel,
-                              isSelected: channel.ledNumber == _selectedLed,
-                              onSelect: () => setState(() => _selectedLed = channel.ledNumber),
-                              onToggle: () => notifier.toggle(channel.ledNumber),
-                              onRename: () => showRenameLightSheet(context, channel.ledNumber, channel.name),
-                            ),
-                        ],
-                      ),
+                    width: 280,
+                    child: GridView.count(
+                      crossAxisCount: 2,
+                      mainAxisSpacing: 14,
+                      crossAxisSpacing: 14,
+                      childAspectRatio: 1,
+                      children: [
+                        for (final channel in channels)
+                          _LightTile(
+                            channel: channel,
+                            isSelected: channel.ledNumber == _selectedLed,
+                            onTap: () {
+                              notifier.toggle(channel.ledNumber);
+                              setState(() => _selectedLed = channel.ledNumber);
+                            },
+                            onRename: () => showRenameLightSheet(context, channel.ledNumber, channel.name),
+                          ),
+                      ],
                     ),
                   ),
                   const SizedBox(width: 14),
@@ -107,12 +112,11 @@ class _LightingScreenState extends ConsumerState<LightingScreen> {
                   ),
                   const SizedBox(width: 14),
                   SizedBox(
-                    width: 260,
+                    width: 220,
                     child: LumaCard(
-                      padding: const EdgeInsets.all(18),
-                      child: _ChannelDetail(
+                      padding: const EdgeInsets.fromLTRB(16, 18, 16, 18),
+                      child: _ChannelDimmer(
                         channel: selected,
-                        onToggle: () => notifier.toggle(selected.ledNumber),
                         onBrightness: (v) => notifier.setBrightness(selected.ledNumber, v),
                       ),
                     ),
@@ -159,69 +163,95 @@ class _LedNodeStatusPill extends StatelessWidget {
   }
 }
 
-class _ChannelListTile extends StatelessWidget {
-  const _ChannelListTile({
+/// A big square press-to-toggle tile — press turns the light on, press
+/// again turns it off; no separate switch control. A small pencil in
+/// the corner opens the rename sheet without triggering the toggle.
+class _LightTile extends StatelessWidget {
+  const _LightTile({
     required this.channel,
     required this.isSelected,
-    required this.onSelect,
-    required this.onToggle,
+    required this.onTap,
     required this.onRename,
   });
 
   final LightChannel channel;
   final bool isSelected;
-  final VoidCallback onSelect;
-  final VoidCallback onToggle;
+  final VoidCallback onTap;
   final VoidCallback onRename;
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Material(
-        color: isSelected ? AppColors.accent.withValues(alpha: 0.14) : Colors.transparent,
-        borderRadius: BorderRadius.circular(AppDimensions.radiusSmall),
-        child: InkWell(
-          onTap: onSelect,
-          borderRadius: BorderRadius.circular(AppDimensions.radiusSmall),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-            child: Row(
-              children: [
-                Icon(
-                  channel.isOn ? Icons.lightbulb_rounded : Icons.lightbulb_outline_rounded,
-                  size: 18,
-                  color: channel.isOn ? AppColors.success : AppColors.textSecondary,
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Text(
-                    channel.name,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      color: isSelected ? Colors.white : AppColors.textSecondary,
-                      fontSize: 13,
-                      fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
-                    ),
-                  ),
-                ),
-                InkWell(
+    final color = channel.isOn ? AppColors.success : AppColors.textTertiary;
+
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(AppDimensions.radiusMedium),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 220),
+          curve: Curves.easeOutCubic,
+          decoration: BoxDecoration(
+            color: channel.isOn ? AppColors.success.withValues(alpha: 0.1) : AppColors.surface,
+            borderRadius: BorderRadius.circular(AppDimensions.radiusMedium),
+            border: Border.all(
+              color: isSelected
+                  ? AppColors.accent
+                  : (channel.isOn ? AppColors.success.withValues(alpha: 0.5) : AppColors.hairline),
+              width: isSelected ? 2 : 1,
+            ),
+            boxShadow: channel.isOn
+                ? [BoxShadow(color: AppColors.success.withValues(alpha: 0.22), blurRadius: 20, spreadRadius: 1)]
+                : null,
+          ),
+          child: Stack(
+            children: [
+              Positioned(
+                top: 6,
+                right: 6,
+                child: InkWell(
                   onTap: onRename,
                   borderRadius: BorderRadius.circular(20),
                   child: const Padding(
-                    padding: EdgeInsets.all(4),
+                    padding: EdgeInsets.all(6),
                     child: Icon(Icons.edit_outlined, size: 15, color: AppColors.textTertiary),
                   ),
                 ),
-                Switch(
-                  value: channel.isOn,
-                  onChanged: (_) => onToggle(),
-                  activeTrackColor: AppColors.success,
-                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              ),
+              Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      channel.isOn ? Icons.lightbulb_rounded : Icons.lightbulb_outline_rounded,
+                      size: 34,
+                      color: color,
+                    ),
+                    const SizedBox(height: 10),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      child: Text(
+                        channel.name,
+                        textAlign: TextAlign.center,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: channel.isOn ? Colors.white : AppColors.textSecondary,
+                          fontSize: 12.5,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      channel.isOn ? 'AÇIK' : 'KAPALI',
+                      style: TextStyle(color: color, fontSize: 10, fontWeight: FontWeight.w700, letterSpacing: 1.5),
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
@@ -229,11 +259,10 @@ class _ChannelListTile extends StatelessWidget {
   }
 }
 
-class _ChannelDetail extends StatelessWidget {
-  const _ChannelDetail({required this.channel, required this.onToggle, required this.onBrightness});
+class _ChannelDimmer extends StatelessWidget {
+  const _ChannelDimmer({required this.channel, required this.onBrightness});
 
   final LightChannel channel;
-  final VoidCallback onToggle;
   final ValueChanged<int> onBrightness;
 
   @override
@@ -245,73 +274,26 @@ class _ChannelDetail extends StatelessWidget {
           textAlign: TextAlign.center,
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
-          style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w700, letterSpacing: 1),
+          style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w700, letterSpacing: 1),
         ),
-        const SizedBox(height: 24),
-        GestureDetector(
-          onTap: onToggle,
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 300),
-            curve: Curves.easeOutCubic,
-            width: 110,
-            height: 110,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: AppColors.surfaceHighlight,
-              border: Border.all(
-                color: channel.isOn ? AppColors.success.withValues(alpha: 0.6) : AppColors.hairline,
-                width: 1.5,
-              ),
-              boxShadow: channel.isOn
-                  ? [BoxShadow(color: AppColors.success.withValues(alpha: 0.25), blurRadius: 26, spreadRadius: 4)]
-                  : null,
-            ),
-            child: Icon(
-              Icons.power_settings_new_rounded,
-              size: 40,
-              color: channel.isOn ? AppColors.success : AppColors.textTertiary,
-            ),
-          ),
-        ),
-        const SizedBox(height: 16),
-        Text(
-          channel.isOn ? 'AÇIK' : 'KAPALI',
-          style: TextStyle(
-            color: channel.isOn ? AppColors.success : AppColors.textTertiary,
-            fontSize: 12,
-            fontWeight: FontWeight.w700,
-            letterSpacing: 2,
-          ),
-        ),
-        const SizedBox(height: 28),
-        Text('PARLAKLIK', style: TextStyle(color: AppColors.textTertiary, fontSize: 10, letterSpacing: 1.5)),
+        const SizedBox(height: 6),
+        Text('PARLAKLIK', style: TextStyle(color: AppColors.textTertiary, fontSize: 9, letterSpacing: 1.5)),
         const SizedBox(height: 4),
         Text(
           '%${(channel.brightness / 10).round()}',
           style: TextStyle(
             color: channel.isOn ? Colors.white : AppColors.textTertiary,
-            fontSize: 30,
+            fontSize: 28,
             fontWeight: FontWeight.w200,
           ),
         ),
+        const SizedBox(height: 18),
         Expanded(
-          child: Align(
-            alignment: Alignment.bottomCenter,
-            child: SliderTheme(
-              data: SliderThemeData(
-                activeTrackColor: AppColors.accent,
-                inactiveTrackColor: AppColors.hairline,
-                thumbColor: Colors.white,
-                overlayColor: AppColors.accent.withValues(alpha: 0.2),
-                trackHeight: 4,
-              ),
-              child: Slider(
-                value: channel.brightness.toDouble().clamp(0, 1000),
-                min: 0,
-                max: 1000,
-                onChanged: channel.isOn ? (v) => onBrightness(v.round()) : null,
-              ),
-            ),
+          child: SegmentedIntensityBar(
+            value: channel.brightness,
+            enabled: channel.isOn,
+            onChanged: onBrightness,
+            width: 64,
           ),
         ),
       ],

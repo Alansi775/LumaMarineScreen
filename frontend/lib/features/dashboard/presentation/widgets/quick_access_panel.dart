@@ -65,9 +65,9 @@ class _QuickButton extends StatelessWidget {
           Text(
             label,
             textAlign: TextAlign.center,
-            maxLines: 1,
+            maxLines: 2,
             overflow: TextOverflow.ellipsis,
-            style: const TextStyle(color: AppColors.textTertiary, fontSize: 11, letterSpacing: 0.2),
+            style: const TextStyle(color: AppColors.textTertiary, fontSize: 10.5, letterSpacing: 0.2, height: 1.15),
           ),
         ],
       ),

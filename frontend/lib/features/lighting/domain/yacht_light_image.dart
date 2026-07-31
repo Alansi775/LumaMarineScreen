@@ -1,5 +1,5 @@
 /// Picks the yacht photo that matches the current floor1/floor2/floor3/
-/// water light combination. Only 6 combination photos exist (plus the
+/// water light combination. Only 7 combination photos exist (plus the
 /// plain all-off photo) — named by the client so each maps to an exact
 /// state; anything not covered falls back to the closest match with
 /// water light ignored, then to the plain photo. Ledger of covered
@@ -9,6 +9,7 @@
 /// |---|---|---|---|---|
 /// | 0 | 0 | 0 | 0 | yatch.png |
 /// | 1 | 0 | 0 | 0 | secondandthirdfloorofffirston |
+/// | 0 | 0 | 1 | 0 | alllightsoffexceptfloor3on |
 /// | 1 | 1 | 0 | 0 | allfloorsonaccetpthirdflooroff |
 /// | 1 | 0 | 1 | 0 | allfloorsonexceptsecondflooroff |
 /// | 0 | 1 | 1 | 0 | alllightsonexceptfisrtflooroff |
@@ -36,6 +37,7 @@ const _allOff = 'assets/images/yatch.png';
 final _exactMatches = <String, String>{
   'falsefalsefalsefalse': _allOff,
   'truefalsefalsefalse': 'assets/images/secondandthirdfloorofffirston Background Removed.png',
+  'falsefalsetruefalse': 'assets/images/alllightsoffexceptfloor3on.png',
   'truetruefalsefalse': 'assets/images/allfloorsonaccetpthirdflooroff Background Removed.png',
   'truefalsetruefalse': 'assets/images/allfloorsonexceptsecondflooroff Background Removed.png',
   'falsetruetruefalse': 'assets/images/alllightsonexceptfisrtflooroff Background Removed.png',

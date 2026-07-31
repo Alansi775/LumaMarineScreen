@@ -7,12 +7,13 @@ part of 'system_controls_controller.dart';
 // **************************************************************************
 
 String _$systemControlsControllerHash() =>
-    r'c7addeabe054e4e3fc1084a1564c193ded42fb5d';
+    r'e214c957f82424826c6873d4c9f2fa020c95d39c';
 
-/// SİSTEM KONTROLLERİ — every toggle here is confirmed "fully real":
-/// each already has its own CAN id and sends a real packet once
-/// hardware is connected (currently logged by [MockDashboardBusService]
-/// instead of transmitted).
+/// SİSTEM KONTROLLERİ (minus lighting, which reads straight from
+/// `lightingControllerProvider`) — every toggle here is confirmed
+/// "fully real": each already has its own CAN id and sends a real
+/// packet once hardware is connected (currently logged by
+/// [MockDashboardBusService] instead of transmitted).
 ///
 /// Copied from [SystemControlsController].
 @ProviderFor(SystemControlsController)

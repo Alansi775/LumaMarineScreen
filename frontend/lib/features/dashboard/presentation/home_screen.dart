@@ -29,7 +29,7 @@ class HomeScreen extends StatelessWidget {
           const YachtAlarmsRow(),
           const SizedBox(height: 12),
           SizedBox(
-            height: 190,
+            height: 220,
             child: Row(
               children: const [
                 Expanded(child: MachineInfoPanel()),

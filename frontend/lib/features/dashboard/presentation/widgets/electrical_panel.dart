@@ -59,9 +59,9 @@ class _ElecColumn extends StatelessWidget {
         Text(
           title,
           textAlign: TextAlign.center,
-          maxLines: 1,
+          maxLines: 2,
           overflow: TextOverflow.ellipsis,
-          style: const TextStyle(color: AppColors.textTertiary, fontSize: 11, letterSpacing: 0.3),
+          style: const TextStyle(color: AppColors.textTertiary, fontSize: 10, letterSpacing: 0.2, height: 1.15),
         ),
         const SizedBox(height: 4),
         Text(
