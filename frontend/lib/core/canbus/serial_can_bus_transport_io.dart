@@ -35,21 +35,38 @@ class _IoSerialCanBusTransport implements SerialCanBusTransport {
 
   @override
   Future<void> open() async {
+    // ignore: avoid_print
+    print('[SerialCanBus] open() starting for $devicePath @ $baudRate baud...');
     try {
+      // ignore: avoid_print
+      print('[SerialCanBus] step 1/3: running stty...');
       final configure = await Process.run(
         'stty',
         ['-F', devicePath, 'raw', '$baudRate', '-echo', '-echoe', '-echok'],
+      ).timeout(
+        const Duration(seconds: 5),
+        onTimeout: () => throw TimeoutException('stty did not return within 5s'),
       );
       if (configure.exitCode != 0) {
         // ignore: avoid_print
-        print('[SerialCanBus] stty configure FAILED on $devicePath: ${configure.stderr}');
+        print('[SerialCanBus] stty configure FAILED (exit ${configure.exitCode}) on $devicePath: '
+            '${configure.stderr}');
       } else {
         // ignore: avoid_print
-        print('[SerialCanBus] $devicePath configured raw @ $baudRate baud');
+        print('[SerialCanBus] step 1/3 done: $devicePath configured raw @ $baudRate baud');
       }
 
-      _file = await File(devicePath).open(mode: FileMode.writeOnlyAppend);
+      // ignore: avoid_print
+      print('[SerialCanBus] step 2/3: opening $devicePath for write...');
+      _file = await File(devicePath).open(mode: FileMode.writeOnlyAppend).timeout(
+            const Duration(seconds: 5),
+            onTimeout: () => throw TimeoutException('File.open() for write did not return within 5s'),
+          );
+      // ignore: avoid_print
+      print('[SerialCanBus] step 2/3 done: write handle open');
 
+      // ignore: avoid_print
+      print('[SerialCanBus] step 3/3: opening $devicePath for read...');
       _readSub = File(devicePath).openRead().listen(
         (bytes) {
           // ignore: avoid_print
@@ -61,12 +78,14 @@ class _IoSerialCanBusTransport implements SerialCanBusTransport {
           if (frame != null) _incomingController.add(frame);
         },
         // ignore: avoid_print
-        onError: (Object e) => print('[SerialCanBus] read error: $e'),
+        onError: (Object e) => print('[SerialCanBus] read stream error: $e'),
         cancelOnError: false,
       );
-    } catch (e) {
       // ignore: avoid_print
-      print('[SerialCanBus] FAILED to open $devicePath: $e — commands will be dropped, not thrown.');
+      print('[SerialCanBus] step 3/3 done: read stream listening. OPEN COMPLETE.');
+    } catch (e, st) {
+      // ignore: avoid_print
+      print('[SerialCanBus] FAILED to open $devicePath: $e\n$st — commands will be dropped, not thrown.');
     }
   }
 
