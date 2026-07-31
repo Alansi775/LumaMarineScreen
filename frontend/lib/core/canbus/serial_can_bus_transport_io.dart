@@ -58,7 +58,11 @@ class _IoSerialCanBusTransport implements SerialCanBusTransport {
 
       // ignore: avoid_print
       print('[SerialCanBus] step 2/3: opening $devicePath for write...');
-      _file = await File(devicePath).open(mode: FileMode.writeOnlyAppend).timeout(
+      // FileMode.writeOnlyAppend seeks to EOF on open, which fails with
+      // "Illegal seek" (errno 29) on a character device like a serial
+      // port — ttyS1 isn't seekable at all. writeOnly avoids the seek;
+      // its O_TRUNC is a harmless no-op on a char device.
+      _file = await File(devicePath).open(mode: FileMode.writeOnly).timeout(
             const Duration(seconds: 5),
             onTimeout: () => throw TimeoutException('File.open() for write did not return within 5s'),
           );
