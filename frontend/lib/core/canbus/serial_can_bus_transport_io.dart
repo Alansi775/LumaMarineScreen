@@ -24,21 +24,29 @@ SerialCanBusTransport createSerialCanBusTransport({required String devicePath, r
 /// the real DLC). Byte order for the ID field is confirmed from the
 /// manual's Modbus section, which spells out ID1=bits28-24 ... ID4=bits7-0.
 ///
-/// One RDWR file handle serves both directions — reading uses a manual
-/// polling loop (`RandomAccessFile.read`), not `File.openRead()`: that
-/// stream API assumes a regular file with a known size (it stats the
-/// file to know when to signal done), and a character device reports
-/// size 0, so the stream was silently completing right after open,
-/// before any real data could ever arrive — confirmed live: writes
-/// worked (Waveshare's own RX LED blinked) but zero bytes were ever
-/// seen coming back, even with a real CAN frame known to be on the bus.
+/// Two separate file handles, one per direction — `RandomAccessFile`
+/// only allows a single async operation in flight at a time, and the
+/// read loop below always has a `read()` pending (it blocks waiting for
+/// the next byte), so a `send()` sharing that same handle collides with
+/// "An async operation is currently pending". Two independent opens of
+/// the same device node are fine at the OS level.
+///
+/// Reading uses a manual polling loop (`RandomAccessFile.read`), not
+/// `File.openRead()`: that stream API assumes a regular file with a
+/// known size (it stats the file to know when to signal done), and a
+/// character device reports size 0, so the stream was silently
+/// completing right after open, before any real data could ever arrive
+/// — confirmed live: writes worked (Waveshare's own RX LED blinked) but
+/// zero bytes were ever seen coming back, even with a real CAN frame
+/// known to be on the bus.
 class _IoSerialCanBusTransport implements SerialCanBusTransport {
   _IoSerialCanBusTransport({required this.devicePath, required this.baudRate});
 
   final String devicePath;
   final int baudRate;
 
-  RandomAccessFile? _file;
+  RandomAccessFile? _writeFile;
+  RandomAccessFile? _readFile;
   bool _reading = false;
   final List<int> _rxBuffer = [];
   final _incomingController = StreamController<CanFrame>.broadcast();
@@ -67,17 +75,23 @@ class _IoSerialCanBusTransport implements SerialCanBusTransport {
       }
 
       // ignore: avoid_print
-      print('[SerialCanBus] step 2/2: opening $devicePath read+write...');
-      // FileMode.write = O_RDWR|O_CREAT|O_TRUNC — no O_APPEND (which
-      // seeks to EOF on open and fails with "Illegal seek" on a
-      // character device) and gives both directions on one fd. O_TRUNC
-      // is a harmless no-op on a char device.
-      _file = await File(devicePath).open(mode: FileMode.write).timeout(
+      print('[SerialCanBus] step 2/2: opening $devicePath (write handle + read handle)...');
+      // writeOnly (O_WRONLY|O_CREAT|O_TRUNC) for sends — no O_APPEND
+      // (seeks to EOF on open, fails with "Illegal seek" on a character
+      // device). O_TRUNC is a harmless no-op on a char device.
+      _writeFile = await File(devicePath).open(mode: FileMode.writeOnly).timeout(
             const Duration(seconds: 5),
-            onTimeout: () => throw TimeoutException('File.open() did not return within 5s'),
+            onTimeout: () => throw TimeoutException('File.open() (write) did not return within 5s'),
+          );
+      // Separate handle for the read loop, which keeps a read()
+      // permanently in flight — sharing one handle with send() would
+      // collide ("An async operation is currently pending").
+      _readFile = await File(devicePath).open(mode: FileMode.read).timeout(
+            const Duration(seconds: 5),
+            onTimeout: () => throw TimeoutException('File.open() (read) did not return within 5s'),
           );
       // ignore: avoid_print
-      print('[SerialCanBus] step 2/2 done: handle open. OPEN COMPLETE.');
+      print('[SerialCanBus] step 2/2 done: both handles open. OPEN COMPLETE.');
 
       _reading = true;
       unawaited(_readLoop());
@@ -89,7 +103,7 @@ class _IoSerialCanBusTransport implements SerialCanBusTransport {
 
   Future<void> _readLoop() async {
     while (_reading) {
-      final f = _file;
+      final f = _readFile;
       if (f == null) break;
       try {
         final chunk = await f.read(256);
@@ -127,7 +141,7 @@ class _IoSerialCanBusTransport implements SerialCanBusTransport {
 
   @override
   Future<void> send(CanFrame frame) async {
-    final f = _file;
+    final f = _writeFile;
     if (f == null) {
       // ignore: avoid_print
       print('[SerialCanBus] send() before a successful open() — dropped ${frame.toLogString()}');
@@ -189,7 +203,8 @@ class _IoSerialCanBusTransport implements SerialCanBusTransport {
   @override
   Future<void> dispose() async {
     _reading = false;
-    await _file?.close();
+    await _writeFile?.close();
+    await _readFile?.close();
     await _incomingController.close();
   }
 }
