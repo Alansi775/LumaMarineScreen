@@ -3,13 +3,17 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'can_bus_transport.dart';
 import 'can_frame.dart';
 import 'can_protocol.dart';
-import 'logging_can_bus_transport.dart';
+import 'serial_can_bus_transport.dart';
 
 part 'can_bus_service.g.dart';
 
 @riverpod
-CanBusTransport canBusTransport(CanBusTransportRef ref) =>
-    LoggingCanBusTransport();
+CanBusTransport canBusTransport(CanBusTransportRef ref) {
+  final transport = SerialCanBusTransport();
+  transport.open();
+  ref.onDispose(transport.dispose);
+  return transport;
+}
 
 @riverpod
 CanBusService canBusService(CanBusServiceRef ref) {

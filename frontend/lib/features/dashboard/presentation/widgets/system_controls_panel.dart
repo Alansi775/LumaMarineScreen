@@ -91,32 +91,29 @@ class _ToggleTile extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, size: 22, color: isOn ? AppColors.success : AppColors.textSecondary),
-            const SizedBox(height: 6),
+            Icon(icon, size: 20, color: isOn ? AppColors.success : AppColors.textSecondary),
+            const SizedBox(height: 4),
             Text(
               label,
               textAlign: TextAlign.center,
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
-              style: const TextStyle(color: AppColors.textTertiary, fontSize: 9, letterSpacing: 0.2, height: 1.15),
-            ),
-            const SizedBox(height: 6),
-            Text(
-              isOn ? AppStrings.acik : AppStrings.kapali,
-              style: TextStyle(
-                color: isOn ? AppColors.success : AppColors.textTertiary,
-                fontSize: 9,
-                fontWeight: FontWeight.w700,
-              ),
+              style: const TextStyle(color: AppColors.textTertiary, fontSize: 9, letterSpacing: 0.2, height: 1.1),
             ),
             const SizedBox(height: 4),
-            Switch(
-              value: isOn,
-              onChanged: (_) => onTap(),
-              activeTrackColor: AppColors.success,
-              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            SizedBox(
+              height: 20,
+              child: FittedBox(
+                child: Switch(
+                  value: isOn,
+                  onChanged: (_) => onTap(),
+                  activeTrackColor: AppColors.success,
+                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                ),
+              ),
             ),
           ],
         ),
@@ -151,30 +148,29 @@ class _SintineTile extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             // Reuses what used to be Pompa 1's icon — Pompa 1/2 and Klima
             // were removed from this panel per client direction.
-            Icon(Icons.water_rounded, size: 22, color: _color),
-            const SizedBox(height: 6),
-            Text(
+            Icon(Icons.water_rounded, size: 20, color: _color),
+            const SizedBox(height: 4),
+            const Text(
               AppStrings.sintinePompa,
               textAlign: TextAlign.center,
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
-              style: const TextStyle(color: AppColors.textTertiary, fontSize: 9, letterSpacing: 0.2, height: 1.15),
+              style: TextStyle(color: AppColors.textTertiary, fontSize: 9, letterSpacing: 0.2, height: 1.1),
             ),
-            const SizedBox(height: 6),
-            Text(_label, style: TextStyle(color: _color, fontSize: 9, fontWeight: FontWeight.w700)),
             const SizedBox(height: 4),
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
               decoration: BoxDecoration(
                 color: _color.withValues(alpha: 0.14),
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(color: _color.withValues(alpha: 0.5)),
               ),
-              child: Icon(Icons.sync_alt_rounded, size: 14, color: _color),
+              child: Text(_label, style: TextStyle(color: _color, fontSize: 8.5, fontWeight: FontWeight.w700)),
             ),
           ],
         ),
