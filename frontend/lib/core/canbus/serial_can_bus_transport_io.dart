@@ -24,15 +24,14 @@ SerialCanBusTransport createSerialCanBusTransport({required String devicePath, r
 /// the real DLC). Byte order for the ID field is confirmed from the
 /// manual's Modbus section, which spells out ID1=bits28-24 ... ID4=bits7-0.
 ///
-/// REQUIRES the physical adapter to actually be *configured* into
-/// Format Conversion mode via Waveshare's own "WS-CAN-TOOL" software —
-/// it ships in "Transparent Transmission" mode by default, which is a
-/// completely different (and for us unusable, since it can't vary the
-/// CAN ID per message) wire format. Also confirm/set the adapter's CAN
-/// bitrate to 500kbps via the same tool — its factory default is
-/// 250kbps, which would silently prevent any real bus communication
-/// regardless of what this class sends, since it wouldn't match the
-/// STM32/ESP32 side's actual 500kbps bus speed.
+/// One RDWR file handle serves both directions — reading uses a manual
+/// polling loop (`RandomAccessFile.read`), not `File.openRead()`: that
+/// stream API assumes a regular file with a known size (it stats the
+/// file to know when to signal done), and a character device reports
+/// size 0, so the stream was silently completing right after open,
+/// before any real data could ever arrive — confirmed live: writes
+/// worked (Waveshare's own RX LED blinked) but zero bytes were ever
+/// seen coming back, even with a real CAN frame known to be on the bus.
 class _IoSerialCanBusTransport implements SerialCanBusTransport {
   _IoSerialCanBusTransport({required this.devicePath, required this.baudRate});
 
@@ -40,7 +39,8 @@ class _IoSerialCanBusTransport implements SerialCanBusTransport {
   final int baudRate;
 
   RandomAccessFile? _file;
-  StreamSubscription<List<int>>? _readSub;
+  bool _reading = false;
+  final List<int> _rxBuffer = [];
   final _incomingController = StreamController<CanFrame>.broadcast();
 
   @override
@@ -49,7 +49,7 @@ class _IoSerialCanBusTransport implements SerialCanBusTransport {
     print('[SerialCanBus] open() starting for $devicePath @ $baudRate baud...');
     try {
       // ignore: avoid_print
-      print('[SerialCanBus] step 1/3: running stty...');
+      print('[SerialCanBus] step 1/2: running stty...');
       final configure = await Process.run(
         'stty',
         ['-F', devicePath, 'raw', '$baudRate', '-echo', '-echoe', '-echok'],
@@ -63,43 +63,65 @@ class _IoSerialCanBusTransport implements SerialCanBusTransport {
             '${configure.stderr}');
       } else {
         // ignore: avoid_print
-        print('[SerialCanBus] step 1/3 done: $devicePath configured raw @ $baudRate baud');
+        print('[SerialCanBus] step 1/2 done: $devicePath configured raw @ $baudRate baud');
       }
 
       // ignore: avoid_print
-      print('[SerialCanBus] step 2/3: opening $devicePath for write...');
-      // FileMode.writeOnlyAppend seeks to EOF on open, which fails with
-      // "Illegal seek" (errno 29) on a character device like a serial
-      // port — ttyS1 isn't seekable at all. writeOnly avoids the seek;
-      // its O_TRUNC is a harmless no-op on a char device.
-      _file = await File(devicePath).open(mode: FileMode.writeOnly).timeout(
+      print('[SerialCanBus] step 2/2: opening $devicePath read+write...');
+      // FileMode.write = O_RDWR|O_CREAT|O_TRUNC — no O_APPEND (which
+      // seeks to EOF on open and fails with "Illegal seek" on a
+      // character device) and gives both directions on one fd. O_TRUNC
+      // is a harmless no-op on a char device.
+      _file = await File(devicePath).open(mode: FileMode.write).timeout(
             const Duration(seconds: 5),
-            onTimeout: () => throw TimeoutException('File.open() for write did not return within 5s'),
+            onTimeout: () => throw TimeoutException('File.open() did not return within 5s'),
           );
       // ignore: avoid_print
-      print('[SerialCanBus] step 2/3 done: write handle open');
+      print('[SerialCanBus] step 2/2 done: handle open. OPEN COMPLETE.');
 
-      // ignore: avoid_print
-      print('[SerialCanBus] step 3/3: opening $devicePath for read...');
-      _readSub = File(devicePath).openRead().listen(
-        (bytes) {
-          // ignore: avoid_print
-          print(
-            '[SerialCanBus] RX raw (${bytes.length}B): '
-            '${bytes.map((b) => b.toRadixString(16).padLeft(2, '0')).join(' ')}',
-          );
-          final frame = _tryDecode(bytes);
-          if (frame != null) _incomingController.add(frame);
-        },
-        // ignore: avoid_print
-        onError: (Object e) => print('[SerialCanBus] read stream error: $e'),
-        cancelOnError: false,
-      );
-      // ignore: avoid_print
-      print('[SerialCanBus] step 3/3 done: read stream listening. OPEN COMPLETE.');
+      _reading = true;
+      unawaited(_readLoop());
     } catch (e, st) {
       // ignore: avoid_print
       print('[SerialCanBus] FAILED to open $devicePath: $e\n$st — commands will be dropped, not thrown.');
+    }
+  }
+
+  Future<void> _readLoop() async {
+    while (_reading) {
+      final f = _file;
+      if (f == null) break;
+      try {
+        final chunk = await f.read(256);
+        if (chunk.isEmpty) {
+          // A real character device read blocks until data or error, so
+          // this shouldn't spin, but guard against a runaway loop
+          // regardless.
+          await Future.delayed(const Duration(milliseconds: 50));
+          continue;
+        }
+        // ignore: avoid_print
+        print(
+          '[SerialCanBus] RX raw (${chunk.length}B): '
+          '${chunk.map((b) => b.toRadixString(16).padLeft(2, '0')).join(' ')}',
+        );
+        _rxBuffer.addAll(chunk);
+        _drainFrames();
+      } catch (e) {
+        if (!_reading) break;
+        // ignore: avoid_print
+        print('[SerialCanBus] read loop error: $e');
+        await Future.delayed(const Duration(milliseconds: 200));
+      }
+    }
+  }
+
+  void _drainFrames() {
+    while (_rxBuffer.length >= 13) {
+      final frameBytes = _rxBuffer.sublist(0, 13);
+      _rxBuffer.removeRange(0, 13);
+      final frame = _tryDecode(frameBytes);
+      if (frame != null) _incomingController.add(frame);
     }
   }
 
@@ -166,7 +188,7 @@ class _IoSerialCanBusTransport implements SerialCanBusTransport {
 
   @override
   Future<void> dispose() async {
-    await _readSub?.cancel();
+    _reading = false;
     await _file?.close();
     await _incomingController.close();
   }
