@@ -1,3 +1,4 @@
+/// lib/features/lighting/domain/yacht_light_image.dart
 /// Picks the yacht photo that matches the current floor1/floor2/floor3/
 /// water light combination. Only 7 combination photos exist (plus the
 /// plain all-off photo) — named by the client so each maps to an exact

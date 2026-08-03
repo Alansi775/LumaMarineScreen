@@ -1,3 +1,4 @@
+// lib/features/lighting/application/lighting_controller.dart
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../core/canbus/can_bus_service.dart';
@@ -30,27 +31,59 @@ class LightingController extends _$LightingController {
     return (node != null && node.active) ? node.assignedId : CanProtocol.canBroadcastId;
   }
 
-  void toggle(int ledNumber) {
+  void toggle(int ledNumber) async {
     final index = state.indexWhere((c) => c.ledNumber == ledNumber);
     if (index == -1) return;
 
-    final newOn = !state[index].isOn;
+    final currentChannel = state[index];
+    final newOn = !currentChannel.isOn;
+
     state = [
       for (final c in state)
         if (c.ledNumber == ledNumber) c.copyWith(isOn: newOn) else c,
     ];
-    ref.read(canBusServiceProvider).setLed(nodeId: _targetNodeId(), channel: ledNumber, isOn: newOn);
+
+    final targetId = _targetNodeId();
+    if (newOn) {
+      ref.read(canBusServiceProvider).setLed(
+        nodeId: targetId,
+        channel: ledNumber,
+        isOn: true,
+      );
+
+      await Future.delayed(const Duration(milliseconds: 10));
+
+      ref.read(canBusServiceProvider).setLedBrightness(
+        nodeId: targetId,
+        channel: ledNumber,
+        value: currentChannel.brightness,
+      );
+    } else {
+      ref.read(canBusServiceProvider).setLed(
+        nodeId: targetId,
+        channel: ledNumber,
+        isOn: false,
+      );
+    }
   }
 
   void setBrightness(int ledNumber, int value) {
     final index = state.indexWhere((c) => c.ledNumber == ledNumber);
     if (index == -1) return;
 
+    final currentChannel = state[index];
+
     state = [
       for (final c in state)
         if (c.ledNumber == ledNumber) c.copyWith(brightness: value) else c,
     ];
-    ref.read(canBusServiceProvider).setLedBrightness(nodeId: _targetNodeId(), channel: ledNumber, value: value);
+    if (currentChannel.isOn) {
+      ref.read(canBusServiceProvider).setLedBrightness(
+        nodeId: _targetNodeId(),
+        channel: ledNumber,
+        value: value,
+      );
+    }
   }
 
   void rename(int ledNumber, String name) {

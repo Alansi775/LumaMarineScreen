@@ -1,3 +1,4 @@
+// lib/features/lighting/application/lighting_controller.g.dart
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 part of 'lighting_controller.dart';

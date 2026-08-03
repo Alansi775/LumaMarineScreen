@@ -1,3 +1,4 @@
+// lib/features/lighting/domain/light_channel.dart
 /// One of the LED board's 4 wired channels (of the 6 it electrically
 /// supports — `led#` 1-4 map to PB3-PB6 on the real board; 5-6 are
 /// unused on this yacht). `led#` never changes (it's the physical wire),
