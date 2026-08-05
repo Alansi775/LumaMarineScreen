@@ -47,7 +47,16 @@ class AssignedCanNode {
 class CanIdMaster {
   CanIdMaster(this._transport, {this.masterId = 0x4C4D}) {
     _sub = _transport.incoming.listen(_onFrame);
-    _heartbeatTimer = Timer.periodic(const Duration(seconds: 3), (_) => _sendMasterHeartbeat());
+    // Heartbeat broadcast disabled: the real ESP32 reference screen is
+    // wired to the same bus and is already the LED board's bound master.
+    // The firmware (usrCan.c, handleMasterHeartbeat) erases a board's ID
+    // assignment the instant it sees a heartbeat from a DIFFERENT master
+    // ID than the one it's currently bound to — so broadcasting our own
+    // heartbeat here was actively kicking the board off the ESP32's
+    // master every 3s, preventing it from ever staying ACTIVE long
+    // enough to accept commands. We target the board's fixed real ID
+    // directly (CanProtocol.ledNodeId) instead of running our own
+    // competing master role.
   }
 
   final CanBusTransport _transport;
@@ -60,7 +69,6 @@ class CanIdMaster {
   final Map<int, AssignedCanNode> _byUniqueId = {};
   int _nextOffset = 1;
   StreamSubscription<CanFrame>? _sub;
-  Timer? _heartbeatTimer;
 
   final _updates = StreamController<AssignedCanNode>.broadcast();
 
@@ -121,18 +129,12 @@ class CanIdMaster {
     _updates.add(_byUniqueId[uid]!);
   }
 
-  void _sendMasterHeartbeat() {
-    final payload = <int>[CanProtocol.cmdMasterHeartbeat, (masterId >> 8) & 0xFF, masterId & 0xFF];
-    _transport.send(CanFrame(id: CanProtocol.canMasterHeartbeatId, data: payload));
-  }
-
   int _readU32(List<int> data, int offset) {
     return (data[offset] << 24) | (data[offset + 1] << 16) | (data[offset + 2] << 8) | data[offset + 3];
   }
 
   void dispose() {
     _sub?.cancel();
-    _heartbeatTimer?.cancel();
     _updates.close();
   }
 }
