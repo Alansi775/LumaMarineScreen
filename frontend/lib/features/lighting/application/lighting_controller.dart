@@ -28,7 +28,7 @@ class LightingController extends _$LightingController {
 
   int _targetNodeId() {
     final node = ref.read(canIdMasterProvider).nodeFor(CanProtocol.nodeTypeLed);
-    return (node != null && node.active) ? node.assignedId : CanProtocol.canBroadcastId;
+    return (node != null && node.active) ? node.assignedId : 0x304;
   }
 
   void toggle(int ledNumber) async {
@@ -71,13 +71,15 @@ class LightingController extends _$LightingController {
     final index = state.indexWhere((c) => c.ledNumber == ledNumber);
     if (index == -1) return;
 
-    final currentChannel = state[index];
+    final isCurrentlyOn = state[index].isOn;
 
     state = [
       for (final c in state)
         if (c.ledNumber == ledNumber) c.copyWith(brightness: value) else c,
     ];
-    if (currentChannel.isOn) {
+
+    // نرسل للبوردة فقط إذا كانت القناة مضاءة حالياً
+    if (isCurrentlyOn) {
       ref.read(canBusServiceProvider).setLedBrightness(
         nodeId: _targetNodeId(),
         channel: ledNumber,
