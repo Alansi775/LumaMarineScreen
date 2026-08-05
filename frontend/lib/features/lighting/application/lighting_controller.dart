@@ -28,7 +28,7 @@ class LightingController extends _$LightingController {
 
   int _targetNodeId() {
     final node = ref.read(canIdMasterProvider).nodeFor(CanProtocol.nodeTypeLed);
-    return (node != null && node.active) ? node.assignedId : 0x304;
+    return (node != null && node.active) ? node.assignedId : CanProtocol.ledNodeId;
   }
 
   void toggle(int ledNumber) async {
