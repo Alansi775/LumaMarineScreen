@@ -9,12 +9,17 @@ class CanProtocol {
 
   // Real nodes get their CAN ID dynamically (0x300–0x38F) via a
   // request/assign handshake with a CAN master — see
-  // usrCanDynamicIDMaster.c on the ESP32 side. Our own handshake
-  // (CanIdMaster) never completes against the real board (it's already
-  // bound to the ESP32 reference screen's master), so we fall back to
-  // this fixed ID — confirmed via the real ESP32 debug console
-  // (`CANMaster: [1] UID: 0x63F8E43A | CAN: 0x300 | Type: LED | ACTIVE`).
-  static const ledNodeId = 0x300; // Lighting Control — confirmed real ID
+  // usrCanDynamicIDMaster.c on the ESP32 side. CanIdMaster tracks the
+  // LED board's real, current ID live from its own heartbeat instead of
+  // trusting a fixed number here — confirmed via direct capture on the
+  // board's own debug UART that its assigned ID actually DRIFTS between
+  // sessions (was 0x300, is 0x303 as of the last capture) as the ESP32
+  // master re-assigns it. This is only the last-resort fallback used
+  // when our serial RX path hasn't received a heartbeat yet (e.g. its
+  // still-unresolved zero-RX issue) — keep it pointed at whatever the
+  // most recent manual capture showed so ad-hoc testing still targets a
+  // real board, but do not treat it as authoritative.
+  static const ledNodeId = 0x303; // Lighting Control — last observed real ID (drifts, see above)
   static const socketsRelayNodeId = 0x302; // Sockets Control (6ch) — matches their page 1:1
   static const extraRelayNodeId = 0x303; // Our own additions (TV, Doors) — not part of their spec
   static const bigRelayNodeId = 0x304; // Big Relay Control (16ch, with feedback)
