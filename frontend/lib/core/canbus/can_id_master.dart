@@ -90,7 +90,44 @@ class CanIdMaster {
       _handleRequest(frame);
     } else if (frame.id == CanProtocol.canIdAssignmentId) {
       _handleConfirmation(frame);
+    } else if (_isNodeHeartbeat(frame.id)) {
+      _handleObservedHeartbeat(frame);
     }
+  }
+
+  bool _isNodeHeartbeat(int id) {
+    final maxOffset = CanProtocol.dynamicIdMax - CanProtocol.dynamicIdMin;
+    return id >= CanProtocol.canHeartbeatBaseId && id <= CanProtocol.canHeartbeatBaseId + maxOffset;
+  }
+
+  /// Boards keep sending their own periodic heartbeat (`CMD_HEARTBEAT` on
+  /// `dynamicIdMin+offset`'s heartbeat ID, see `sendHeartbeat()` in
+  /// usrCan.c) for as long as they're bound to *some* master — which may
+  /// not be us. We don't run our own master role while the real ESP32
+  /// reference screen is on the bus (see the constructor comment), so we
+  /// never see the request/assignment handshake to learn a board's ID
+  /// directly. Its assigned offset can also change any time the board
+  /// re-requests one (e.g. after being power-cycled or bumped off its
+  /// master) — confirmed live: the same LED board's own debug console
+  /// showed ID 0x300 in one session and 0x303 in the next. Passively
+  /// watching every node's heartbeat instead of hardcoding a fixed ID
+  /// keeps us in sync with whatever the real master currently has it on.
+  void _handleObservedHeartbeat(CanFrame frame) {
+    if (frame.data.length < 5 || frame.data[0] != CanProtocol.cmdHeartbeat) return;
+
+    final uid = _readU32(frame.data, 1);
+    final offset = frame.id - CanProtocol.canHeartbeatBaseId;
+    final existing = _byUniqueId[uid];
+
+    // Type is only known if we happened to catch this node's original ID
+    // request; otherwise assume LED, the only dynamically-assigned board
+    // currently deployed on this yacht.
+    final nodeType = existing?.nodeType ?? CanProtocol.nodeTypeLed;
+
+    if (existing?.offset == offset && existing?.active == true) return;
+
+    _byUniqueId[uid] = AssignedCanNode(uniqueId: uid, nodeType: nodeType, offset: offset, active: true);
+    _updates.add(_byUniqueId[uid]!);
   }
 
   void _handleRequest(CanFrame frame) {
